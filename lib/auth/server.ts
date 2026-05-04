@@ -67,7 +67,9 @@ export async function getUser(): Promise<AuthUser | null> {
   return {
     id: dbUser.id,
     email: dbUser.email,
+    name: dbUser.name,
     role: dbUser.role,
+    organizationId: dbUser.organizationId,
     teamId: dbUser.teamId,
     supabaseUid: dbUser.supabaseUid,
   };

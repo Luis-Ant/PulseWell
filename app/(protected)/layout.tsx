@@ -1,17 +1,29 @@
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/server";
+import { signOut } from "@/lib/auth/actions";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface ProtectedLayoutProps {
   children: ReactNode;
 }
 
-/**
- * Auth guard layout — wraps all protected routes.
- * Redirects to /auth/login if no authenticated session exists.
- *
- * Full nav bar with user info and logout button will be added in PR3.
- */
+function roleLabel(role: string): string {
+  switch (role) {
+    case "ADMIN":
+      return "Admin";
+    case "HR_ANALYST":
+      return "HR Analyst";
+    case "MANAGER":
+      return "Manager";
+    case "EMPLOYEE":
+      return "Employee";
+    default:
+      return role;
+  }
+}
+
 export default async function ProtectedLayout({
   children,
 }: ProtectedLayoutProps) {
@@ -23,6 +35,34 @@ export default async function ProtectedLayout({
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
+      {/* Top nav bar */}
+      <header className="border-b border-slate-800">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+          <div className="flex items-center gap-3">
+            <span className="text-lg font-bold tracking-tight text-white">
+              PulseWell
+            </span>
+            <span className="hidden rounded-full border border-slate-700 px-2.5 py-0.5 text-xs text-slate-400 sm:inline">
+              {roleLabel(user.role)}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-slate-400">{user.name}</span>
+            <form action={signOut}>
+              <Button
+                type="submit"
+                variant="secondary"
+                className="px-3 py-1.5 text-xs"
+              >
+                <LogOut className="mr-1.5 h-3.5 w-3.5" />
+                Cerrar sesión
+              </Button>
+            </form>
+          </div>
+        </div>
+      </header>
+
       <main>{children}</main>
     </div>
   );

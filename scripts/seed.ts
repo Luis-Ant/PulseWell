@@ -128,16 +128,24 @@ function calcOwi(scores: { energy: number; belonging: number; clarity: number; s
 
 // ─── Main seed function ───────────────────────────────────────────────────────
 
-async function main() {
-  console.log("🌱 Seeding PulseWell demo data...\n");
+export interface SeedResult {
+  userCount: number;
+  teamCount: number;
+  surveyResultCount: number;
+  wellbeingCount: number;
+  alertCount: number;
+  recommendationCount: number;
+}
 
+export async function runSeed(): Promise<SeedResult> {
   // ── Supabase Admin Client ───────────────────────────────────────────────────
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseSecret = process.env.SUPABASE_SECRET_KEY;
 
   if (!supabaseUrl || !supabaseSecret) {
-    console.error("❌ Missing env vars: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY");
-    process.exit(1);
+    throw new Error(
+      "Missing env vars: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY",
+    );
   }
 
   const supabaseAdmin = createClient(supabaseUrl, supabaseSecret, {
@@ -516,28 +524,49 @@ async function main() {
   console.log(`  ✅ Recommendation: ${rec4.action.slice(0, 50)}...`);
 
   // ── Summary ─────────────────────────────────────────────────────────────────
-  const totalUsers = await prisma.user.count();
-  const totalTeams = await prisma.team.count();
-  const totalResults = await prisma.surveyResult.count();
+  const userCount = await prisma.user.count();
+  const teamCount = await prisma.team.count();
+  const surveyResultCount = await prisma.surveyResult.count();
   const totalWellbeing = await prisma.wellbeingScore.count();
-  const totalAlerts = await prisma.smartAlert.count();
-  const totalRecs = await prisma.recommendation.count();
+  const alertCount = await prisma.smartAlert.count();
+  const recommendationCount = await prisma.recommendation.count();
+
+  return {
+    userCount,
+    teamCount,
+    surveyResultCount,
+    wellbeingCount: totalWellbeing,
+    alertCount,
+    recommendationCount,
+  };
+}
+
+// ─── Direct execution wrapper ─────────────────────────────────────────────────
+
+async function main() {
+  console.log("🌱 Seeding PulseWell demo data...\n");
+
+  const result = await runSeed();
 
   console.log("\n" + "=".repeat(60));
   console.log("🌱 Seed complete!");
   console.log("=".repeat(60));
   console.log(`  🏢 Organization:    1 (${ORG_NAME})`);
-  console.log(`  👥 Teams:           ${totalTeams}`);
-  console.log(`  👤 Users:           ${totalUsers}`);
-  console.log(`  📊 Survey Results:  ${totalResults}`);
-  console.log(`  💚 Wellbeing:       ${totalWellbeing}`);
-  console.log(`  🚨 Smart Alerts:    ${totalAlerts}`);
-  console.log(`  💡 Recommendations: ${totalRecs}`);
+  console.log(`  👥 Teams:           ${result.teamCount}`);
+  console.log(`  👤 Users:           ${result.userCount}`);
+  console.log(`  📊 Survey Results:  ${result.surveyResultCount}`);
+  console.log(`  💚 Wellbeing:       ${result.wellbeingCount}`);
+  console.log(`  🚨 Smart Alerts:    ${result.alertCount}`);
+  console.log(`  💡 Recommendations: ${result.recommendationCount}`);
   console.log("\n📧 Demo credentials:");
   console.log("  admin@pulsewell.demo      / Demo1234!  (ADMIN)");
   console.log("  hr@pulsewell.demo         / Demo1234!  (HR_ANALYST)");
-  console.log("  manager-eng@pulsewell.demo / Demo1234!  (MANAGER — Engineering)");
-  console.log("  employee1-eng@pulsewell.demo / Demo1234! (EMPLOYEE — Engineering)");
+  console.log(
+    "  manager-eng@pulsewell.demo / Demo1234!  (MANAGER — Engineering)",
+  );
+  console.log(
+    "  employee1-eng@pulsewell.demo / Demo1234! (EMPLOYEE — Engineering)",
+  );
   console.log("  ... (see scripts/seed.ts for full list)");
 }
 
