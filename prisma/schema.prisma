@@ -11,20 +11,25 @@ model Organization {
   name      String
   teams     Team[]
   users     User[]
+  surveys   Survey[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Team {
-  id             String          @id @default(cuid())
-  name           String
-  organizationId String
-  organization   Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  users          User[]
-  surveyResults  SurveyResult[]
-  wellbeingScore WellbeingScore[]
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id              String           @id @default(cuid())
+  name            String
+  organizationId  String
+  organization    Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users           User[]
+  surveyResults   SurveyResult[]
+  wellbeingScore  WellbeingScore[]
+  smartAlerts     SmartAlert[]
+  recommendations Recommendation[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([organizationId])
 }
 
 model User {
@@ -40,29 +45,77 @@ model User {
   responses      SurveyResult[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+
+  @@index([organizationId])
 }
 
 model SurveyResult {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   teamId    String
+  period    String?
   energy    Int
   belonging Int
   clarity   Int
   stress    Int
   workload  Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  surveyId  String?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  team      Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  survey    Survey?   @relation(fields: [surveyId], references: [id], onDelete: SetNull)
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, period])
+  @@index([teamId, period])
 }
 
 model WellbeingScore {
-  id          String    @id @default(cuid())
-  teamId      String
-  owi         Int
-  burnoutRisk RiskLevel
-  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
+  id            String    @id @default(cuid())
+  teamId        String
+  period        String?
+  owi           Int
+  burnoutRisk   RiskLevel
+  attritionRisk RiskLevel @default(LOW)
+  team          Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+
+  @@unique([teamId, period])
+}
+
+model Survey {
+  id             String         @id @default(cuid())
+  name           String
+  isActive       Boolean        @default(true)
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  responses      SurveyResult[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model SmartAlert {
+  id              String           @id @default(cuid())
+  teamId          String
+  type            AlertType
+  severity        AlertSeverity
+  message         String
+  driver          String?
+  isActive        Boolean          @default(true)
+  team            Team             @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  recommendations Recommendation[]
+  resolvedAt      DateTime?
+  createdAt       DateTime         @default(now())
+}
+
+model Recommendation {
+  id        String      @id @default(cuid())
+  alertId   String?
+  teamId    String
+  category  String
+  action    String
+  alert     SmartAlert? @relation(fields: [alertId], references: [id], onDelete: SetNull)
+  team      Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
 }
 
 enum UserRole {
@@ -76,4 +129,20 @@ enum RiskLevel {
   LOW
   MEDIUM
   HIGH
+}
+
+enum AlertType {
+  BURNOUT
+  ATTRITION
+  WELLBEING
+  TREND
+  PRODUCTIVITY
+  PREDICTIVE
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
 }

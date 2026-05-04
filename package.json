@@ -10,9 +10,12 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "seed": "bun scripts/seed.ts",
+    "seed:reset": "bunx prisma migrate reset --force && bun scripts/seed.ts",
     "start": "next start"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "latest",
     "@radix-ui/react-slot": "latest",
     "@supabase/ssr": "^0.10.2",
