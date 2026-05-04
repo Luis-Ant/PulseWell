@@ -1,16 +1,16 @@
 export const USER_ROLE = {
-  ADMIN: "admin",
-  HR_ANALYST: "hr_analyst",
-  MANAGER: "manager",
-  EMPLOYEE: "employee",
+  ADMIN: "ADMIN",
+  HR_ANALYST: "HR_ANALYST",
+  MANAGER: "MANAGER",
+  EMPLOYEE: "EMPLOYEE",
 } as const;
 
 export type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE];
 
 export const RISK_LEVEL = {
-  LOW: "low",
-  MEDIUM: "medium",
-  HIGH: "high",
+  LOW: "LOW",
+  MEDIUM: "MEDIUM",
+  HIGH: "HIGH",
 } as const;
 
 export type RiskLevel = (typeof RISK_LEVEL)[keyof typeof RISK_LEVEL];
