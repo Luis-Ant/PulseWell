@@ -8,5 +8,8 @@ export default defineConfig({
   },
   datasource: {
     url: env("DATABASE_URL"),
+    // Direct connection for migrations — Supabase pgBouncer can't run migrations
+    // @ts-expect-error directUrl is supported at runtime by Prisma 7 but not in types
+    directUrl: env("DIRECT_URL"),
   },
 });

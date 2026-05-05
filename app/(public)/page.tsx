@@ -1,14 +1,59 @@
+import Link from "next/link";
 import { Activity, Brain, ShieldCheck, TrendingUp } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { SectionCard } from "@/components/dashboard/section-card";
 import { Button } from "@/components/ui/button";
+import { getUser } from "@/lib/auth/server";
 import { getDemoWellbeingSummary } from "@/lib/mock-data";
 
-export default function HomePage() {
+function getDashboardPath(role: string): string {
+  switch (role) {
+    case "ADMIN":
+      return "/admin";
+    case "HR_ANALYST":
+      return "/hr";
+    case "MANAGER":
+      return "/manager";
+    default:
+      return "/survey";
+  }
+}
+
+export default async function HomePage() {
   const summary = getDemoWellbeingSummary();
+  const user = await getUser();
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
+      {/* Auth-aware header bar */}
+      <header className="border-b border-slate-800">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+          <Link
+            href="/"
+            className="text-lg font-bold tracking-tight text-white"
+          >
+            PulseWell
+          </Link>
+
+          {user ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-slate-400">{user.name}</span>
+              <Button
+                variant="secondary"
+                asChild
+                className="px-3 py-1.5 text-xs"
+              >
+                <Link href={getDashboardPath(user.role)}>Dashboard</Link>
+              </Button>
+            </div>
+          ) : (
+            <Button asChild className="px-3 py-1.5 text-xs">
+              <Link href="/auth/login">Iniciar sesión</Link>
+            </Button>
+          )}
+        </div>
+      </header>
+
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12 md:py-20">
         <div className="flex flex-col gap-6">
           <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-300">
