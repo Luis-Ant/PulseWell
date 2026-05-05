@@ -76,3 +76,30 @@ export interface WellbeingSummary extends PulseSurveyScore {
   trend: TrendClassification;
   teams: number;
 }
+
+// ── API DTOs ──
+
+export interface AlertDto {
+  alertId: string;
+  teamId: string;
+  teamName: string;
+  type: string;
+  severity: string;
+  message: string;
+  description: string;
+  triggeredAt: string;
+  resolvedAt: string | null;
+  isActive: boolean;
+}
+
+export interface RecommendationDto {
+  recommendationId: string;
+  alertId: string | null;
+  teamId: string;
+  teamName: string;
+  type: string;
+  title: string;
+  description: string;
+  actionableSteps: string[];
+  createdAt: string;
+}
