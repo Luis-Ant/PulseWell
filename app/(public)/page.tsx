@@ -64,7 +64,7 @@ export default async function HomePage() {
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
             <div className="flex flex-col gap-5">
               <h1 className="max-w-4xl text-4xl font-bold tracking-tight text-white md:text-6xl">
-                Convertí señales de bienestar en decisiones inteligentes.
+                Converte señales de bienestar en decisiones inteligentes.
               </h1>
               <p className="max-w-2xl text-lg leading-8 text-slate-300">
                 PulseWell ayuda a Recursos Humanos y líderes de equipo a detectar
