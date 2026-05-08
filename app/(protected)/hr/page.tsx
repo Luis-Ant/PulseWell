@@ -50,7 +50,7 @@ export default async function HrPage() {
     return <EmptyState />;
   }
 
-  const teamIds = teams.map((t) => t.id);
+  const teamIds = teams.map((t: { id: string; name: string }) => t.id);
 
   // ── Latest WellbeingScore per team ─────────────────────────────────
   const latestScores = await prisma.wellbeingScore.findMany({
