@@ -95,8 +95,9 @@ function buildUsers(): UserDef[] {
       teamSlug: slug,
     });
 
-    // Employees per team (vary to hit 20 total: 4+4+3+3 = 14)
-    const employeeCount = slug === "eng" || slug === "sales" ? 4 : 3;
+    // Employees per team — 4 per team for 5 total users each (1 manager + 4 employees)
+    // This ensures every team meets the privacy guard threshold of 5 responses
+    const employeeCount = 4;
     for (let i = 1; i <= employeeCount; i++) {
       users.push({
         email: `employee${i}-${slug}@pulsewell.demo`,
