@@ -55,3 +55,20 @@
 | HR Analyst     | hr@pulsewell.demo         | Demo1234!  |
 | Manager (Eng)  | manager-eng@pulsewell.demo | Demo1234!  |
 | Employee (Eng) | employee1-eng@pulsewell.demo | Demo1234!  |
+
+## Preguntas Frecuentes en Demo
+
+### ¿De dónde vienen los datos?
+Son datos simulados diseñados para contar una historia: Engineering con riesgo de burnout, Sales con riesgo de rotación, Operations estable, Customer Success mejorando. En un piloto real, estos datos vendrían de encuestas semanales respondidas por empleados.
+
+### ¿Qué tan preciso es el OWI?
+El OWI usa una fórmula ponderada con 5 dimensiones (energía, pertenencia, claridad, estrés, carga). Es una métrica sintética, no una verdad absoluta. Su valor está en detectar tendencias y cambios, no en el número exacto.
+
+### ¿La proyección es real?
+No. Es una simulación basada en regresión lineal simple. Está etiquetada como "Simulación" en la UI. Su propósito es mostrar potencial, no predecir el futuro.
+
+### ¿Qué se necesita para un piloto real?
+1. 1-3 empresas dispuestas a participar
+2. 50-200 empleados
+3. 4-8 semanas de encuestas semanales
+4. Feedback cualitativo de HR, managers y empleados

@@ -1,5 +1,8 @@
 # PulseWell
 
+> 🚀 **MVP Completado** — Junio 2026. Prototipo funcional con datos simulados.  
+> **Próximo paso**: Piloto controlado con datos reales (ver [Roadmap](#roadmap)).
+
 > **Organizational Wellbeing Intelligence** — SaaS MVP for aggregated wellbeing analytics, early risk detection, and actionable leadership insights.
 
 ---
