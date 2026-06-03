@@ -3,6 +3,7 @@ import { Activity, Brain, ShieldCheck, TrendingUp } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { SectionCard } from "@/components/dashboard/section-card";
 import { Button } from "@/components/ui/button";
+import { RoadmapSection } from "@/components/landing/RoadmapSection";
 import { getUser } from "@/lib/auth/server";
 import { getDemoWellbeingSummary } from "@/lib/mock-data";
 
@@ -161,6 +162,9 @@ export default async function HomePage() {
           />
         </div>
       </section>
+
+      {/* ─── Roadmap ─────────────────────────────────────── */}
+      <RoadmapSection />
 
       {/* ─── Footer ────────────────────────────────────────── */}
       <footer className="border-t border-slate-800 mt-16">
