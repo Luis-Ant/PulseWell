@@ -4,6 +4,7 @@ import { USER_ROLE } from "@/lib/types";
 import { Building2, Users, ClipboardList, RefreshCw, AlertTriangle, ArrowRight, Shield } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AdminNav } from "@/components/admin/AdminNav";
 
 export default async function AdminPage() {
   const user = await getUser();
@@ -43,6 +44,9 @@ export default async function AdminPage() {
           Gestioná tu organización, equipos, usuarios y encuestas.
         </p>
       </div>
+
+      {/* Admin Nav */}
+      <AdminNav />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
