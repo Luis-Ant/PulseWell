@@ -67,7 +67,7 @@ export default async function HomePage() {
           {/* Hero headline + OWI card */}
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
             <div className="flex flex-col gap-6">
-              <h1 className="font-heading max-w-4xl text-5xl font-bold leading-[1.05] tracking-tight text-white md:text-7xl">
+              <h1 className="font-heading max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-7xl">
                 Convertí señales
                 <br />
                 de bienestar en
@@ -103,11 +103,11 @@ export default async function HomePage() {
 
           {/* CTA buttons */}
           <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-            <Button className="font-brand text-sm tracking-wide">
-              Ver dashboard demo
+            <Button asChild className="font-brand text-sm tracking-wide">
+              <Link href="/auth/login">Ver dashboard demo</Link>
             </Button>
-            <Button variant="secondary" className="font-light text-sm">
-              Revisar alcance MVP
+            <Button variant="secondary" asChild className="font-light text-sm">
+              <Link href="#features">Conocer más</Link>
             </Button>
           </div>
         </div>
@@ -122,7 +122,16 @@ export default async function HomePage() {
           <MetricCard
             icon={ShieldCheck}
             label="Riesgo burnout"
-            value={summary.burnoutRisk}
+            value={
+              summary.burnoutRisk === "LOW"
+                ? "Bajo"
+                : summary.burnoutRisk === "MEDIUM"
+                  ? "Medio"
+                  : summary.burnoutRisk === "HIGH"
+                    ? "Alto"
+                    : "Crítico"
+            }
+            status={summary.burnoutRisk}
           />
           <MetricCard
             icon={TrendingUp}
@@ -137,7 +146,7 @@ export default async function HomePage() {
         </div>
 
         {/* ─── Feature Cards ─────────────────────────────── */}
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div id="features" className="grid gap-4 scroll-mt-20 lg:grid-cols-3">
           <SectionCard
             title="Analítica agregada"
             description="Visualizá el estado de bienestar por equipo sin exponer datos individuales sensibles."
@@ -152,6 +161,31 @@ export default async function HomePage() {
           />
         </div>
       </section>
+
+      {/* ─── Footer ────────────────────────────────────────── */}
+      <footer className="border-t border-slate-800 mt-16">
+        <div className="mx-auto max-w-6xl px-6 py-8">
+          <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:justify-between">
+            <div>
+              <p className="text-xs text-slate-600">
+                PulseWell MVP — Organizational Wellbeing Intelligence
+              </p>
+              <p className="mt-1 text-xs text-slate-700">
+                Ambiente demo. Datos simulados. No constituye diagnóstico clínico.
+              </p>
+            </div>
+            <div className="flex gap-6">
+              <Link
+                href="/auth/login"
+                className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                Iniciar sesión
+              </Link>
+              <span className="text-xs text-slate-700">v0.1.0</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
