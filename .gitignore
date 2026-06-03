@@ -20,6 +20,9 @@ yarn-error.log*
 pnpm-debug.log*
 bun-debug.log*
 
+# Build cache
+*.tsbuildinfo
+
 # OS / editors
 .DS_Store
 .idea/

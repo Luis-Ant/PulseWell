@@ -11,7 +11,26 @@ import { prisma } from "../lib/prisma";
 
 const DEMO_PASSWORD = "Demo1234!";
 const ORG_NAME = "PulseWell Demo";
-const WEEKS = ["2026-W14", "2026-W15", "2026-W16", "2026-W17"];
+function getRecentWeeks(count: number = 4): string[] {
+  const weeks: string[] = [];
+  const now = new Date();
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i * 7);
+    // ISO week number calculation
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNum = Math.ceil(
+      ((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7,
+    );
+    const year = d.getUTCFullYear();
+    weeks.push(`${year}-W${String(weekNum).padStart(2, "0")}`);
+  }
+  return weeks;
+}
+
+const WEEKS = getRecentWeeks(4);
 
 const TEAMS = [
   { name: "Engineering", slug: "eng" },
@@ -97,29 +116,38 @@ function generateIndividualScores(
   targetMean: number,
   userIndex: number,
 ): { energy: number; belonging: number; clarity: number; stress: number; workload: number } {
-  // Deterministic offsets based on userIndex to get variation
+  // Deterministic offsets based on userIndex to get variation (scaled for 1-5 range)
   const offsets = [
-    [1, -1, 2, -2, 0],
-    [-1, 2, -2, 1, -1],
-    [2, 0, -1, -1, 2],
-    [-2, 1, 0, 2, 1],
-    [0, -2, 1, 0, -2],
+    [0, -1, 1, -1, 0],
+    [-1, 1, -1, 0, -1],
+    [1, 0, -1, -1, 1],
+    [-1, 0, 0, 1, 0],
+    [0, -1, 0, 0, -1],
   ];
   const offset = offsets[userIndex % offsets.length];
 
-  const clamp = (v: number) => Math.max(1, Math.min(10, Math.round(v)));
+  const clamp = (v: number) => Math.max(1, Math.min(5, Math.round(v)));
 
   return {
-    energy: clamp(targetMean / 10 + offset[0]),
-    belonging: clamp(targetMean / 10 + offset[1]),
-    clarity: clamp(targetMean / 10 + offset[2]),
-    stress: clamp(targetMean / 10 + offset[3]),
-    workload: clamp(targetMean / 10 + offset[4]),
+    energy: clamp(targetMean / 20 + offset[0]),
+    belonging: clamp(targetMean / 20 + offset[1]),
+    clarity: clamp(targetMean / 20 + offset[2]),
+    stress: clamp(targetMean / 20 + offset[3]),
+    workload: clamp(targetMean / 20 + offset[4]),
   };
 }
 
 /**
  * Calculate OWI from individual scores (simple average × 10).
+ *
+ * NOTE: This uses the SIMPLE formula (avg×10), NOT the weighted formula
+ * from lib/analytics/owi.ts. This is intentional because:
+ * 1. WellbeingScores in the seed are MANUALLY defined in TEAM_TRENDS to match
+ *    the demo narrative — they don't use this function at all.
+ * 2. calcOwi is only used for SurveyResult individual response generation,
+ *    where the exact OWI doesn't matter (it's never persisted from here).
+ * 3. The weighted formula requires full team aggregation which isn't available
+ *    at the individual response level during seeding.
  */
 function calcOwi(scores: { energy: number; belonging: number; clarity: number; stress: number; workload: number }): number {
   const avg = (scores.energy + scores.belonging + scores.clarity + scores.stress + scores.workload) / 5;

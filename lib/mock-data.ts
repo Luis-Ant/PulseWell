@@ -19,6 +19,6 @@ export function getDemoWellbeingSummary(): WellbeingSummary {
     burnoutRisk: calculateBurnoutRiskTeam(owi),
     attritionRisk: "LOW" as const,
     trend: "stable",
-    teams: 6,
+    teams: 4,
   };
 }

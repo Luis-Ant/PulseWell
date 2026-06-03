@@ -60,9 +60,22 @@ export function LoginForm() {
         <p className="mb-2 text-sm font-medium text-slate-400">
           Credenciales demo:
         </p>
-        <p className="font-mono text-xs text-slate-500">
-          hr@pulsewell.demo / Demo1234!
-        </p>
+        <div className="space-y-1.5">
+          {[
+            { email: "admin@pulsewell.demo", role: "ADMIN" },
+            { email: "hr@pulsewell.demo", role: "HR_ANALYST" },
+            { email: "manager-eng@pulsewell.demo", role: "MANAGER" },
+            { email: "employee1-eng@pulsewell.demo", role: "EMPLOYEE" },
+          ].map(({ email, role }) => (
+            <div key={email} className="flex flex-wrap items-baseline gap-x-2">
+              <span className="font-mono text-xs text-slate-300">
+                {email}
+              </span>
+              <span className="text-[10px] text-slate-600">/ Demo1234!</span>
+              <span className="text-[10px] text-slate-600">({role})</span>
+            </div>
+          ))}
+        </div>
       </div>
     </form>
   );
