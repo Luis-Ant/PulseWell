@@ -5,6 +5,15 @@ import {
   getCurrentPeriod,
   validateSurveyResponse,
 } from "@/lib/survey-utils";
+import {
+  aggregateTeamData,
+  calculateOwiWeighted,
+  calculateBurnoutRiskTeam,
+  calculateAttritionRisk,
+  privacyGuard,
+} from "@/lib/analytics";
+import { generateAlerts, generateRecommendations } from "@/lib/alerts";
+import type { TeamAlertInput } from "@/lib/alerts";
 
 /**
  * POST /api/responses
@@ -103,6 +112,84 @@ export async function POST(request: NextRequest) {
       surveyId: activeSurvey.id,
     },
   });
+
+  // ── Regenerate WellbeingScore for this team + period ──────────────
+  // After a new response, recompute the team's wellbeing score so
+  // dashboards show up-to-date metrics without manual intervention.
+  try {
+    const aggResult = await aggregateTeamData(user.teamId, period);
+    const guard = privacyGuard(aggResult.responseCount);
+
+    if (guard.sufficient) {
+      const owi = calculateOwiWeighted(aggResult);
+      if (owi !== null) {
+        const averages = { ...aggResult, owi };
+        const burnoutRisk = calculateBurnoutRiskTeam(owi);
+        const attritionRisk = calculateAttritionRisk(averages);
+
+        await prisma.wellbeingScore.upsert({
+          where: { teamId_period: { teamId: user.teamId, period } },
+          create: { teamId: user.teamId, period, owi, burnoutRisk, attritionRisk },
+          update: { owi, burnoutRisk, attritionRisk },
+        });
+
+        // Regenerate alerts for this team
+        const team = await prisma.team.findUnique({
+          where: { id: user.teamId },
+          select: { id: true, name: true },
+        });
+
+        if (team) {
+          const teamInput: TeamAlertInput = {
+            teamId: team.id,
+            teamName: team.name,
+            owi,
+            burnoutRisk,
+            attritionRisk,
+            productivityHealth: "LOW",
+            period,
+          };
+
+          const projectedOwiByTeam = new Map<string, number | null>();
+          const decliningTrendTeams = new Set<string>();
+          // Simple: just regenerate for this team
+          const alerts = generateAlerts([teamInput], projectedOwiByTeam, decliningTrendTeams);
+
+          // Delete old alerts for this team + period and recreate
+          await prisma.recommendation.deleteMany({ where: { teamId: user.teamId } });
+          await prisma.smartAlert.deleteMany({ where: { teamId: user.teamId } });
+
+          for (const alert of alerts) {
+            const saved = await prisma.smartAlert.create({
+              data: {
+                teamId: alert.teamId,
+                type: alert.type as never,
+                severity: alert.severity as never,
+                message: alert.message,
+                driver: alert.driver,
+                isActive: true,
+              },
+            });
+
+            const recs = generateRecommendations([alert]);
+            for (const rec of recs) {
+              await prisma.recommendation.create({
+                data: {
+                  teamId: rec.teamId,
+                  alertId: saved.id,
+                  category: rec.category,
+                  action: rec.action,
+                },
+              });
+            }
+          }
+        }
+      }
+    }
+  } catch (err) {
+    // Log but don't fail the response — the survey response was saved successfully
+    console.error("Failed to regenerate wellbeing score after survey response:", err);
+  }
 
   return NextResponse.json(
     {
