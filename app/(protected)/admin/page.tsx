@@ -5,6 +5,7 @@ import { Building2, Users, ClipboardList, RefreshCw, AlertTriangle, ArrowRight, 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { AutoRefresh } from "@/components/shared/AutoRefresh";
 
 export default async function AdminPage() {
   const user = await getUser();
@@ -37,6 +38,7 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
+      <AutoRefresh />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white">Panel de Administración</h1>

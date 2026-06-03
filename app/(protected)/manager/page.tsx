@@ -9,6 +9,7 @@ import { RiskBadge } from "@/components/dashboard/risk-badge";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { AlertCard } from "@/components/dashboard/alert-card";
 import { RecommendationCard } from "@/components/dashboard/recommendation-card";
+import { AutoRefresh } from "@/components/shared/AutoRefresh";
 
 import type { AlertDto, RecommendationDto } from "@/lib/types";
 
@@ -169,6 +170,7 @@ export default async function ManagerPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      <AutoRefresh />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white">Panel de Manager</h1>

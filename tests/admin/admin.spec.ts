@@ -39,11 +39,12 @@ test.describe("Admin — Teams CRUD", { tag: ["@critical", "@e2e", "@admin"] }, 
   test("Can edit a team name",
     { tag: ["@ADMIN-E2E-004"] },
     async ({ page }) => {
-      // Click edit on Engineering
+      // Click edit on Engineering row
       const engineeringRow = page.locator("tr", { hasText: "Engineering" });
       await engineeringRow.getByText("Editar").click();
-      // Form appears with pre-filled name
-      const input = page.getByDisplayValue("Engineering");
+      // Form appears with pre-filled name — clear and type new name
+      const input = page.getByPlaceholder("Nombre del equipo");
+      await input.clear();
       await input.fill("Engineering R&D");
       await page.getByRole("button", { name: "Actualizar" }).click();
       await page.waitForTimeout(500);
