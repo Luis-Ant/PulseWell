@@ -1,12 +1,282 @@
-/**
- * Manager dashboard — placeholder stub.
- * Full implementation in PR3.
- */
-export default function ManagerPage() {
+import { getUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { USER_ROLE, RISK_LEVEL, type RiskLevel } from "@/lib/types";
+import { calculateProductivityHealth, calculateProjection } from "@/lib/analytics";
+import { TrendingUp, AlertTriangle, ShieldCheck, Brain } from "lucide-react";
+
+import { MetricCard } from "@/components/dashboard/metric-card";
+import { RiskBadge } from "@/components/dashboard/risk-badge";
+import { TrendChart } from "@/components/dashboard/trend-chart";
+import { AlertCard } from "@/components/dashboard/alert-card";
+import { RecommendationCard } from "@/components/dashboard/recommendation-card";
+
+import type { AlertDto, RecommendationDto } from "@/lib/types";
+
+interface TrendDataPoint {
+  period: string;
+  [teamName: string]: string | number;
+}
+
+export default async function ManagerPage() {
+  const user = await getUser();
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24">
+        <h1 className="text-3xl font-bold text-white">Panel de Manager</h1>
+        <p className="mt-4 text-slate-400">Iniciá sesión para acceder al panel.</p>
+      </div>
+    );
+  }
+
+  if (user.role !== USER_ROLE.MANAGER || !user.teamId) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24">
+        <h1 className="text-3xl font-bold text-white">Panel de Manager</h1>
+        <p className="mt-4 text-slate-400">
+          Este panel es exclusivo para managers con un equipo asignado.
+        </p>
+      </div>
+    );
+  }
+
+  const teamId = user.teamId;
+
+  const team = await prisma.team.findUnique({
+    where: { id: teamId },
+    select: { id: true, name: true },
+  });
+
+  if (!team) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24">
+        <h1 className="text-3xl font-bold text-white">Panel de Manager</h1>
+        <p className="mt-4 text-slate-400">Equipo no encontrado.</p>
+      </div>
+    );
+  }
+
+  // Latest WellbeingScore
+  const latestScore = await prisma.wellbeingScore.findFirst({
+    where: { teamId },
+    orderBy: { period: "desc" },
+  });
+
+  if (!latestScore) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-24 text-center">
+        <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900 p-12">
+          <h1 className="text-3xl font-bold text-white">Panel de Manager — {team.name}</h1>
+          <p className="mt-4 leading-relaxed text-slate-400">
+            Datos insuficientes para mostrar métricas del equipo.
+          </p>
+          <p className="mt-2 text-sm text-slate-500">
+            Se necesitan al menos 5 respuestas para preservar la privacidad individual.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Compute productivity health from OWI
+  const productivityHealth = calculateProductivityHealth({
+    energy: 0,
+    belonging: 0,
+    clarity: 0,
+    stress: 0,
+    workload: 0,
+    owi: latestScore.owi,
+  });
+
+  // Active alerts (single team)
+  const dbAlerts = await prisma.smartAlert.findMany({
+    where: { teamId, isActive: true, resolvedAt: null },
+    include: { team: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const severityOrder: Record<string, number> = {
+    CRITICAL: 4,
+    HIGH: 3,
+    MEDIUM: 2,
+    LOW: 1,
+  };
+  dbAlerts.sort(
+    (a, b) =>
+      (severityOrder[b.severity] ?? 0) - (severityOrder[a.severity] ?? 0) ||
+      b.createdAt.getTime() - a.createdAt.getTime(),
+  );
+
+  const alerts: AlertDto[] = dbAlerts.map((a) => ({
+    alertId: a.id,
+    teamId: a.teamId,
+    teamName: a.team.name,
+    type: a.type,
+    severity: a.severity,
+    message: a.message,
+    description: a.driver ? `${a.message} — ${a.driver}` : a.message,
+    triggeredAt: a.createdAt.toISOString(),
+    resolvedAt: a.resolvedAt?.toISOString() ?? null,
+    isActive: a.isActive,
+  }));
+
+  // Recommendations (single team)
+  const dbRecs = await prisma.recommendation.findMany({
+    where: { teamId },
+    include: {
+      alert: { select: { type: true, message: true, severity: true } },
+      team: { select: { name: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+  });
+
+  const recommendations: RecommendationDto[] = dbRecs.map((r) => ({
+    recommendationId: r.id,
+    alertId: r.alertId,
+    teamId: r.teamId,
+    teamName: r.team.name,
+    type: r.alert?.type ?? r.category,
+    title: r.alert?.message ?? r.category,
+    description: r.action,
+    actionableSteps: [r.action],
+    createdAt: r.createdAt.toISOString(),
+  }));
+
+  // Trend data (single team, last 4 periods)
+  const trendScores = await prisma.wellbeingScore.findMany({
+    where: { teamId },
+    orderBy: { period: "asc" },
+    take: 4,
+  });
+
+  const trendData: TrendDataPoint[] = trendScores.map((s) => ({
+    period: s.period ?? "",
+    [team.name]: s.owi,
+  }));
+
+  // OWI projection
+  const owiHistory = trendScores.map((s) => s.owi);
+  const projectedOwi = calculateProjection(owiHistory);
+
+  // Helper: classify OWI into RiskLevel
+  const classifyOwi = (owi: number): RiskLevel => {
+    if (owi >= 70) return RISK_LEVEL.LOW;
+    if (owi >= 50) return RISK_LEVEL.MEDIUM;
+    if (owi >= 30) return RISK_LEVEL.HIGH;
+    return RISK_LEVEL.CRITICAL;
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center py-24">
-      <h1 className="text-3xl font-bold text-white">Panel de Manager</h1>
-      <p className="mt-4 text-slate-400">Bienestar de tu equipo, alertas y recomendaciones.</p>
+    <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-white">Panel de Manager</h1>
+        <p className="mt-1 text-sm text-slate-400">
+          Bienestar de{" "}
+          <span className="font-semibold text-slate-300">{team.name}</span>.
+          Los datos se muestran de forma agregada para preservar la privacidad individual.
+        </p>
+      </div>
+
+      {/* Metrics row — 4 cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          icon={TrendingUp}
+          label="OWI del Equipo"
+          value={String(latestScore.owi)}
+          status={classifyOwi(latestScore.owi)}
+        />
+        <MetricCard
+          icon={AlertTriangle}
+          label="Alertas Activas"
+          value={String(alerts.length)}
+          status={classifyOwi(
+            alerts.length === 0 ? 100 : alerts.length <= 2 ? 60 : alerts.length <= 5 ? 40 : 20,
+          )}
+        />
+        {projectedOwi !== null && (
+          <MetricCard
+            icon={TrendingUp}
+            label="OWI Proyectado (Simulación)"
+            value={String(Math.round(projectedOwi))}
+            status={classifyOwi(projectedOwi)}
+          />
+        )}
+        <MetricCard
+          icon={Brain}
+          label="Período"
+          value={latestScore.period ?? "—"}
+        />
+      </div>
+
+      {/* Risk badges row */}
+      <div className="flex flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500">Riesgos:</span>
+          <RiskBadge level={latestScore.burnoutRisk as RiskLevel} label="Burnout" />
+          <RiskBadge level={latestScore.attritionRisk as RiskLevel} label="Rotación" />
+          <RiskBadge level={productivityHealth} label="Productividad" />
+        </div>
+      </div>
+
+      {/* Trend chart */}
+      {trendData.length > 0 && (
+        <section>
+          <TrendChart data={trendData} />
+        </section>
+      )}
+
+      {/* Alerts */}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-white">
+          Alertas ({alerts.length})
+        </h2>
+        {alerts.length > 0 ? (
+          <div className="space-y-4">
+            {alerts.map((alert) => (
+              <AlertCard key={alert.alertId} alert={alert} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-emerald-800/50 bg-emerald-950/20 p-8 text-center">
+            <p className="text-sm font-medium text-emerald-300">No hay alertas activas</p>
+            <p className="mt-1 text-xs text-emerald-400/60">
+              El equipo se encuentra dentro de rangos saludables.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* Recommendations */}
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-white">
+          Recomendaciones ({recommendations.length})
+        </h2>
+        {recommendations.length > 0 ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {recommendations.map((rec) => (
+              <RecommendationCard key={rec.recommendationId} recommendation={rec} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-emerald-800/50 bg-emerald-950/20 p-8 text-center">
+            <p className="text-sm font-medium text-emerald-300">No hay recomendaciones pendientes</p>
+            <p className="mt-1 text-xs text-emerald-400/60">
+              Las métricas actuales no requieren acciones preventivas adicionales.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* Privacy footer */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 text-center">
+        <ShieldCheck className="mx-auto size-5 text-slate-600" />
+        <p className="mt-2 text-xs leading-relaxed text-slate-600">
+          Los datos mostrados son agregados a nivel equipo. Las respuestas individuales
+          nunca se comparten. Se requiere un mínimo de 5 respuestas para mostrar métricas.
+        </p>
+      </div>
     </div>
   );
 }
