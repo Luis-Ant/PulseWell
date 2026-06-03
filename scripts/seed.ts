@@ -149,6 +149,7 @@ function generateIndividualScores(
  * 3. The weighted formula requires full team aggregation which isn't available
  *    at the individual response level during seeding.
  */
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for documentation; see comment above */
 function calcOwi(scores: { energy: number; belonging: number; clarity: number; stress: number; workload: number }): number {
   const avg = (scores.energy + scores.belonging + scores.clarity + scores.stress + scores.workload) / 5;
   return Math.round(avg * 10);
