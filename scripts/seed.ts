@@ -17,7 +17,8 @@ const ORG_NAME = "PulseWell Demo";
 function getRecentWeeks(count: number = 4): string[] {
   const weeks: string[] = [];
   const now = new Date();
-  for (let i = count - 1; i >= 0; i--) {
+  // Start from LAST week (not current) so employees can respond THIS week
+  for (let i = count; i >= 1; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i * 7);
     // ISO week number calculation
