@@ -19,14 +19,13 @@ test.describe("Auth — Login", { tag: ["@critical", "@e2e", "@auth"] }, () => {
       await expect(page.getByRole("heading", { name: "Panel de Manager" })).toBeVisible();
     });
 
-  test("Employee can login and reach survey",
+  test("Employee can login and reach survey form",
     { tag: ["@AUTH-E2E-003"] },
     async ({ page }) => {
       await loginAs(page, "employee");
       await expect(page).toHaveURL(/\/survey$/);
-      // Employee already submitted (seed data), so confirmation view appears
       await expect(
-        page.getByText("¡Gracias por responder!")
+        page.getByRole("heading", { name: "Weekly Pulse" })
       ).toBeVisible();
     });
 

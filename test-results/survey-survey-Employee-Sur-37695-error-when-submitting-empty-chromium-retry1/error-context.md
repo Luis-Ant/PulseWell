@@ -1,0 +1,112 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: survey/survey.spec.ts >> Employee Survey >> Shows validation error when submitting empty
+- Location: tests/survey/survey.spec.ts:44:7
+
+# Error details
+
+```
+Error: locator.click: Target page, context or browser has been closed
+Call log:
+  - waiting for getByRole('button', { name: 'Enviar respuestas' })
+
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from "@playwright/test";
+  2  | import { loginAs } from "../helpers";
+  3  | 
+  4  | test.describe("Employee Survey", { tag: ["@critical", "@e2e", "@survey"] }, () => {
+  5  |   test("Employee sees survey form with heading",
+  6  |     { tag: ["@SURVEY-E2E-001"] },
+  7  |     async ({ page }) => {
+  8  |       await loginAs(page, "employee");
+  9  |       // surveyName is "Weekly Pulse Q2 2026"
+  10 |       await expect(
+  11 |         page.getByRole("heading", { name: "Weekly Pulse" })
+  12 |       ).toBeVisible();
+  13 |       await expect(page.getByText("Período:")).toBeVisible();
+  14 |     });
+  15 | 
+  16 |   test("Shows all 5 questions with labels",
+  17 |     { tag: ["@SURVEY-E2E-002"] },
+  18 |     async ({ page }) => {
+  19 |       await loginAs(page, "employee");
+  20 |       // Labels use full question text — use partial match with text content
+  21 |       await expect(page.getByText("¿Cómo calificarías tu nivel de energía")).toBeVisible();
+  22 |       await expect(page.getByText("¿Qué tan conectado te sentís con tu equipo")).toBeVisible();
+  23 |       await expect(page.getByText("¿Qué tan claros están los objetivos")).toBeVisible();
+  24 |       await expect(page.getByText("¿Qué nivel de estrés sentiste")).toBeVisible();
+  25 |       await expect(page.getByText("¿Qué tan manejable fue tu carga")).toBeVisible();
+  26 |     });
+  27 | 
+  28 |   test("Shows privacy message on form",
+  29 |     { tag: ["@SURVEY-E2E-003"] },
+  30 |     async ({ page }) => {
+  31 |       await loginAs(page, "employee");
+  32 |       await expect(page.getByText("Ambiente demo")).toBeVisible();
+  33 |     });
+  34 | 
+  35 |   test("Shows submit button",
+  36 |     { tag: ["@SURVEY-E2E-004"] },
+  37 |     async ({ page }) => {
+  38 |       await loginAs(page, "employee");
+  39 |       await expect(
+  40 |         page.getByRole("button", { name: "Enviar respuestas" })
+  41 |       ).toBeVisible();
+  42 |     });
+  43 | 
+  44 |   test("Shows validation error when submitting empty",
+  45 |     { tag: ["@SURVEY-E2E-005"] },
+  46 |     async ({ page }) => {
+  47 |       await loginAs(page, "employee");
+> 48 |       await page.getByRole("button", { name: "Enviar respuestas" }).click();
+     |                                                                     ^ Error: locator.click: Target page, context or browser has been closed
+  49 |       // Client-side validation shows per-field errors — wait for first one
+  50 |       await expect(
+  51 |         page.locator("text=Seleccioná un valor para esta pregunta").first()
+  52 |       ).toBeVisible({ timeout: 5000 });
+  53 |     });
+  54 | 
+  55 |   test("Can submit survey and see confirmation",
+  56 |     { tag: ["@SURVEY-E2E-006"] },
+  57 |     async ({ page }) => {
+  58 |       await loginAs(page, "employee");
+  59 |       // Click score 3 for each question using aria-labels
+  60 |       const ariaLabels = [
+  61 |         "Energía: 3",
+  62 |         "Pertenencia: 3",
+  63 |         "Claridad: 3",
+  64 |         "Estrés: 3",
+  65 |         "Carga de trabajo: 3",
+  66 |       ];
+  67 |       for (const label of ariaLabels) {
+  68 |         await page.getByLabel(label).click();
+  69 |       }
+  70 |       await page.getByRole("button", { name: "Enviar respuestas" }).click();
+  71 |       // Should see confirmation
+  72 |       await expect(
+  73 |         page.getByText("¡Gracias por responder!")
+  74 |       ).toBeVisible({ timeout: 15000 });
+  75 |       await expect(
+  76 |         page.getByText("Tu respuesta fue registrada")
+  77 |       ).toBeVisible();
+  78 |     });
+  79 | 
+  80 |   test("No analytics visible to employee",
+  81 |     { tag: ["@SURVEY-E2E-007"] },
+  82 |     async ({ page }) => {
+  83 |       await loginAs(page, "employee");
+  84 |       await expect(page.getByText("OWI")).not.toBeVisible();
+  85 |     });
+  86 | });
+  87 | 
+```
