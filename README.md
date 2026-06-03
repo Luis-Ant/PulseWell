@@ -1,276 +1,148 @@
-# 🧠 PulseWell
+# PulseWell
 
-> **Organizational Wellbeing Intelligence Platform**  
-> Transformamos datos organizacionales en insights predictivos para cuidar el bienestar, anticipar riesgos y tomar mejores decisiones.
-
----
-
-## 📌 Resumen del proyecto
-
-**PulseWell** es una plataforma SaaS orientada a medir, analizar y predecir el bienestar organizacional a partir de datos agregados. Su objetivo es ayudar a empresas, áreas de Recursos Humanos y líderes de equipo a identificar señales tempranas de **burnout**, desmotivación, sobrecarga laboral y riesgo de rotación antes de que se conviertan en problemas críticos.
-
-Este MVP funciona como un **prototipo de analítica predictiva** basado en datos simulados. Está diseñado para validar la viabilidad técnica del producto, demostrar su potencial de negocio y presentar una propuesta clara de valor ante usuarios, empresas e inversionistas.
+> **Organizational Wellbeing Intelligence** — SaaS MVP for aggregated wellbeing analytics, early risk detection, and actionable leadership insights.
 
 ---
 
-## 🎯 Propuesta de valor
+## Stack
 
-PulseWell permite convertir señales internas de bienestar en información accionable para la toma de decisiones.
-
-- 📊 **Analítica organizacional en tiempo real** para visualizar el estado general de equipos y áreas.
-- 🔍 **Detección temprana de riesgos** relacionados con burnout, desconexión y baja energía.
-- ⚡ **Recomendaciones accionables** para líderes y managers.
-- 🧩 **Análisis agregado y privacidad primero**, evitando exposición individual innecesaria.
-- 📈 **Conexión entre bienestar y desempeño**, mostrando cómo la salud organizacional impacta al negocio.
-
----
-
-## 🧱 Stack tecnológico
-
-| Área | Tecnologías |
-| --- | --- |
-| **Frontend** | Next.js App Router, React, TypeScript, Tailwind CSS, shadcn/ui |
-| **Backend** | Next.js API Routes, Prisma ORM |
-| **Base de datos y servicios** | Supabase, PostgreSQL, Supabase Auth |
-| **Visualización de datos** | Recharts |
-| **Deploy y CI/CD** | Vercel, GitHub CI/CD |
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 15 (App Router) |
+| Language | TypeScript (strict) |
+| UI | React 19, Tailwind CSS 4 |
+| Components | shadcn/ui |
+| ORM | Prisma 7 |
+| Database | PostgreSQL (Supabase) |
+| Auth | Supabase Auth + custom RBAC |
+| Charts | Recharts |
+| Runtime / PM | Bun |
+| Testing | Vitest |
 
 ---
 
-## 🧩 Arquitectura del sistema
+## Features
 
-```text
-┌──────────────────────────┐
-│ Frontend                 │
-│ Next.js + React          │
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│ API Routes               │
-│ Next.js Backend          │
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│ Prisma ORM               │
-└────────────┬─────────────┘
-             │
-             ▼
-┌──────────────────────────┐
-│ PostgreSQL               │
-│ Supabase                 │
-└──────────────────────────┘
+- [x] Role-based dashboards (Admin, HR Analyst, Manager, Employee)
+- [x] **OWI (Organizational Wellbeing Index)** — weighted formula: `energy×0.25 + belonging×0.20 + clarity×0.20 + stress×0.20 + workload×0.15`, normalized to 0–100
+- [x] Burnout risk detection per team
+- [x] Attrition risk estimation per team
+- [x] Productivity health scoring
+- [x] OWI trend charts (4-period window)
+- [x] **Smart Alerts** — severity-ordered: CRITICAL → LOW
+- [x] **Recommendation engine** — auto-generated actions per alert
+- [x] Executive insight banner (dashboard top)
+- [x] Positive empty states (alerts & recommendations)
+- [x] Loading skeleton matching layout
+- [x] Privacy-first: no individual data exposed, minimum response threshold, aggregated-only views
+- [x] OWI projection simulation (linear regression on history)
+
+---
+
+## Getting Started
+
+### Prerequisites
+- [Bun](https://bun.sh) >= 1.0
+- A [Supabase](https://supabase.com) project (PostgreSQL)
+
+### Setup
+
+```bash
+git clone <repo-url> && cd pulsewell
+cp .env.example .env     # fill in Supabase + DB credentials
+bun install               # installs deps + generates Prisma client
+bunx prisma migrate dev   # apply schema to DB
+bun seed:reset            # seed demo data (idempotent)
+bun dev                   # http://localhost:3000
 ```
 
----
+### Environment Variables
 
-## 👥 Roles de usuario
-
-| Rol | Capacidades principales |
-| --- | --- |
-| **Admin** | Control general del sistema, gestión de usuarios, equipos y configuración. |
-| **HR Analyst** | Visualización de insights globales, alertas y recomendaciones organizacionales. |
-| **Manager** | Monitoreo del bienestar de su equipo y recepción de alertas preventivas. |
-| **Employee** | Respuesta a encuestas pulse de manera simple y periódica. |
+See `.env.example` — requires `DATABASE_URL`, `DIRECT_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and `SUPABASE_SECRET_KEY`.
 
 ---
 
-## 📊 Funcionalidades principales del MVP
+## Demo Credentials
 
-### 🧠 Wellbeing Analytics
+All accounts use password: **`Demo1234!`**
 
-- Cálculo del **Organizational Wellbeing Index (OWI)**.
-- Detección de riesgo de burnout.
-- Estimación inicial de riesgo de rotación.
-- Análisis de tendencias por equipo o área.
-
-### 📋 Pulse Surveys
-
-- Encuestas breves y periódicas.
-- Respuestas numéricas en escala de 1 a 5.
-- Agregación de resultados a nivel equipo.
-
-### 🚨 Smart Alerts
-
-- Detección de equipos con alto riesgo de burnout.
-- Identificación de tendencias de energía en descenso.
-- Alertas por umbrales críticos de bienestar.
-
-### 💡 Recommendations Engine
-
-- Recomendaciones automáticas para managers.
-- Acciones preventivas según el estado del equipo.
-- Priorización de señales relevantes para liderazgo.
+| Email | Role | Scope |
+|-------|------|-------|
+| `admin@pulsewell.demo` | Admin | Full system access |
+| `hr@pulsewell.demo` | HR Analyst | Global dashboards & alerts |
+| `manager-eng@pulsewell.demo` | Manager | Engineering team (high-risk narrative) |
+| `manager-sales@pulsewell.demo` | Manager | Sales team (declining trend) |
+| `manager-ops@pulsewell.demo` | Manager | Operations team (healthy reference) |
+| `manager-cs@pulsewell.demo` | Manager | Customer Success (recovering) |
 
 ---
 
-## 🔐 Privacidad por diseño
+## Scripts
 
-PulseWell parte de una premisa clave: el bienestar organizacional debe medirse sin exponer innecesariamente a las personas.
-
-- 🔒 No se muestran datos individuales sensibles.
-- 📦 Los resultados se analizan de forma agregada.
-- 👥 Se requiere un mínimo de usuarios por equipo para mostrar métricas.
-- 🧾 Los identificadores de usuario se manejan de forma anonimizada.
-- 🛡️ El MVP no analiza mensajes, conversaciones ni contenido privado.
+| Command | What it does |
+|---------|-------------|
+| `bun dev` | Start Next.js dev server |
+| `bun build` | Production build |
+| `bun lint` | ESLint (next/core-web-vitals) |
+| `bun test` | Vitest — 75 tests |
+| `bun seed` | Seed demo data (upsert-safe) |
+| `bun seed:reset` | Reset DB + re-seed |
+| `bun verify:scenarios` | Run scenario verification |
 
 ---
 
-## 📐 Modelo analítico del MVP
+## Architecture
 
-### Organizational Wellbeing Index (OWI)
+```
+app/
+├── (auth)/          # Login, signup, auth callback
+├── (protected)/
+│   ├── admin/       # Admin dashboard
+│   ├── employee/    # Pulse survey
+│   ├── hr/          # HR analytics dashboard ← main deliverable
+│   └── manager/     # Team-level view
+├── api/             # REST endpoints (OWI, trends, alerts)
+└── layout.tsx       # Root layout with providers
 
-El **OWI** resume el estado de bienestar de un equipo combinando variables positivas y negativas.
+lib/
+├── analytics/       # OWI engine, projections, trends
+├── auth/            # RBAC middleware, getUser
+├── alerts/          # Smart alert + recommendation generation
+└── prisma.ts        # Singleton Prisma client
 
-```text
-OWI = (Energy + Belonging + Clarity) - (Stress + Workload)
+components/
+└── dashboard/       # MetricCard, TeamGrid, TrendChart, AlertCard, RecommendationCard
+
+prisma/
+└── schema.prisma    # Org → Team → User, WellbeingScore, SmartAlert, Recommendation
 ```
 
-El resultado se normaliza en una escala de **0 a 100** para facilitar su interpretación.
-
-### Burnout Risk
-
-La detección inicial de riesgo de burnout se basa en reglas simples dentro del MVP.
-
-Se considera un riesgo elevado cuando existe una combinación de:
-
-- Alto estrés.
-- Baja energía.
-- Alta carga de trabajo.
-
-### Capa predictiva simulada
-
-Para efectos de validación, el MVP incluye una capa predictiva basada en datos sintéticos.
-
-- Detección de riesgos por tendencia.
-- Alertas basadas en patrones históricos.
-- Estimación de estados futuros con información simulada.
+**Analytics engine**: OWI is computed in `lib/analytics/` from survey dimension scores using the weighted formula above. Alerts and recommendations are generated server-side during seed (`scripts/seed.ts`) by evaluating team metrics against configurable thresholds.
 
 ---
 
-## 📁 Estructura del proyecto
+## Project Structure
 
-```text
+```
 pulsewell/
-├── app/                  # Next.js App Router
-├── components/           # Componentes reutilizables de UI
-├── lib/                  # Utilidades, servicios y lógica de negocio
-├── prisma/               # Esquema y configuración de base de datos
-├── public/               # Assets estáticos
-├── styles/               # Estilos globales
-├── .env                  # Variables de entorno locales
-├── bun.lock              # Lockfile generado por Bun
-├── README.md             # Documentación principal del proyecto
-└── package.json          # Dependencias y scripts del proyecto
+├── app/                  # Next.js App Router (route groups)
+├── components/           # Shared UI components
+├── lib/                  # Business logic, analytics, auth
+├── prisma/               # Schema & migrations
+├── scripts/              # Seed, scenario verification
+├── public/               # Static assets
+├── .env.example          # Env var template
+├── package.json          # Dependencies & scripts
+└── bun.lock              # Bun lockfile
 ```
 
 ---
 
-## ⚙️ Instalación y ejecución local
+## Disclaimer
 
-### 1. Clonar el repositorio
+PulseWell is an **MVP / prototype** for product validation and technical demonstration. It:
 
-```bash
-git clone https://github.com/your-org/pulsewell.git
-cd pulsewell
-```
-
-### 2. Instalar dependencias
-
-```bash
-bun install
-```
-
-### 3. Configurar variables de entorno
-
-Crear un archivo `.env` en la raíz del proyecto:
-
-```env
-DATABASE_URL=
-SUPABASE_URL=
-SUPABASE_ANON_KEY=
-```
-
-### 4. Ejecutar el servidor de desarrollo
-
-```bash
-bun dev
-```
-
-### 5. Abrir la aplicación
-
-```text
-http://localhost:3000
-```
-
----
-
-## 🚀 Deployment
-
-El despliegue está pensado para ejecutarse automáticamente mediante:
-
-- **Vercel** como plataforma de hosting.
-- **GitHub** como repositorio fuente.
-- **Auto-deploy** al hacer push sobre la rama principal.
-
----
-
-## 🧪 Alcance del MVP
-
-### Incluido
-
-- Datos simulados.
-- Dashboards por rol.
-- Motor básico de analítica.
-- Alertas y recomendaciones iniciales.
-- Visualización de tendencias organizacionales.
-
-### No incluido todavía
-
-- Integración real con Slack o Microsoft Teams.
-- Análisis de sentimiento con NLP.
-- Modelos predictivos de Machine Learning en producción.
-- Cumplimiento normativo completo para ambientes productivos.
-
----
-
-## 🗺️ Roadmap futuro
-
-- 🔗 Integración con Slack y Microsoft Teams.
-- 🤖 Análisis de sentimiento asistido por IA.
-- 📄 Módulo de cumplimiento NOM-035.
-- 📊 Modelos avanzados de predicción organizacional.
-- 🧠 Algoritmos adaptativos de aprendizaje.
-- 🔐 Controles avanzados de seguridad, auditoría y cumplimiento.
-
----
-
-## ⚠️ Disclaimer
-
-PulseWell es un prototipo MVP creado para validación de producto, demostración técnica y presentación ante potenciales usuarios o inversionistas.
-
-Este sistema:
-
-- No es una herramienta clínica.
-- No realiza diagnósticos médicos o psicológicos.
-- No debe utilizarse para evaluar la salud mental individual de empleados.
-
----
-
-## 🌍 Visión
-
-Construir un futuro donde el trabajo no desgaste a las personas, sino que las potencie mediante sistemas inteligentes, decisiones responsables y una cultura organizacional más humana.
-
----
-
-## 🧑‍💻 Autores
-
-**PulseWell Team**  
-Instituto Politécnico Nacional
-
----
-
-## 📄 Licencia
-
-MIT License
+- Uses **simulated data** — no real employee information
+- Is **not a clinical tool** — does not diagnose medical or psychological conditions
+- Should **not** be used to evaluate individual employee mental health
+- Aggregates all metrics at team level — individual responses are never exposed

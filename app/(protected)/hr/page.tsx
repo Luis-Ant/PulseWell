@@ -3,7 +3,7 @@ import { requireRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/prisma";
 import { USER_ROLE, type TeamMetrics } from "@/lib/types";
 import { calculateProductivityHealth, calculateProjection } from "@/lib/analytics";
-import { AlertTriangle, TrendingUp, Users } from "lucide-react";
+import { AlertTriangle, Lightbulb, TrendingUp, Users } from "lucide-react";
 
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { TeamGrid } from "@/components/dashboard/team-grid";
@@ -254,6 +254,44 @@ export default async function HrPage() {
         </p>
       </div>
 
+      {/* ── Executive Summary / Insights ────────────────────────── */}
+      {hasAnyData && (() => {
+        const highRiskTeams = teamMetricsList.filter(
+          t => t.burnoutRisk === "CRITICAL" || t.burnoutRisk === "HIGH" || t.attritionRisk === "HIGH" || t.attritionRisk === "CRITICAL"
+        );
+        const healthyTeams = teamMetricsList.filter(
+          t => !t.insufficientData && t.burnoutRisk === "LOW" && t.attritionRisk === "LOW"
+        );
+
+        return (
+          <div className="rounded-2xl border border-cyan-800/20 bg-gradient-to-r from-cyan-950/30 to-slate-900 p-5">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-cyan-400/10">
+                <Lightbulb className="size-4 text-cyan-300" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-cyan-200">Resumen ejecutivo</p>
+                {highRiskTeams.length > 0 ? (
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                    {highRiskTeams.length} equipo{highRiskTeams.length > 1 ? "s" : ""} requiere{highRiskTeams.length === 1 ? "" : "n"} atención:{" "}
+                    {highRiskTeams.map(t => t.teamName).join(", ")}.
+                    {" "}Se recomienda revisar las alertas activas y aplicar las recomendaciones sugeridas.
+                  </p>
+                ) : (
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                    Todos los equipos se encuentran dentro de rangos saludables de bienestar organizacional.{" "}
+                    {healthyTeams.length > 0 && `${healthyTeams.length} equipo${healthyTeams.length > 1 ? "s" : ""} con métricas estables.`}
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-slate-600">
+                  Panel de HR — vista agregada de bienestar organizacional. Los datos individuales no son visibles.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ── Global Metrics Row ──────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
@@ -330,25 +368,32 @@ export default async function HrPage() {
       )}
 
       {/* ── Alerts ──────────────────────────────────────────────── */}
-      {alerts.length > 0 && (
-        <section>
-          <h2 className="mb-4 text-lg font-semibold text-white">
-            Alertas ({alerts.length})
-          </h2>
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-white">
+          Alertas ({alerts.length})
+        </h2>
+        {alerts.length > 0 ? (
           <div className="space-y-4">
             {alerts.map((alert) => (
               <AlertCard key={alert.alertId} alert={alert} />
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="rounded-2xl border border-dashed border-emerald-800/50 bg-emerald-950/20 p-8 text-center">
+            <p className="text-sm font-medium text-emerald-300">No hay alertas activas</p>
+            <p className="mt-1 text-xs text-emerald-400/60">
+              Todos los equipos se encuentran dentro de rangos saludables.
+            </p>
+          </div>
+        )}
+      </section>
 
       {/* ── Recommendations ─────────────────────────────────────── */}
-      {recommendations.length > 0 && (
-        <section>
-          <h2 className="mb-4 text-lg font-semibold text-white">
-            Recomendaciones ({recommendations.length})
-          </h2>
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-white">
+          Recomendaciones ({recommendations.length})
+        </h2>
+        {recommendations.length > 0 ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {recommendations.map((rec) => (
               <RecommendationCard
@@ -357,8 +402,15 @@ export default async function HrPage() {
               />
             ))}
           </div>
-        </section>
-      )}
+        ) : (
+          <div className="rounded-2xl border border-dashed border-emerald-800/50 bg-emerald-950/20 p-8 text-center">
+            <p className="text-sm font-medium text-emerald-300">No hay recomendaciones pendientes</p>
+            <p className="mt-1 text-xs text-emerald-400/60">
+              Las métricas actuales no requieren acciones preventivas adicionales.
+            </p>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

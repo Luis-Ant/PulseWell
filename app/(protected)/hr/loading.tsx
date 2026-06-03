@@ -12,8 +12,8 @@ export default function HrLoading() {
       </div>
 
       {/* Global metrics skeleton */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {Array.from({ length: 3 }).map((_, i) => (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
             className="rounded-2xl border border-slate-800 bg-slate-900 p-5"
