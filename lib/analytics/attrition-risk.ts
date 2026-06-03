@@ -1,20 +1,29 @@
 import { RISK_LEVEL, type TeamAverages, type RiskLevel } from "@/lib/types";
 
 /**
- * Attrition risk classification at team level.
+ * Clasificación de riesgo de rotación de personal a nivel de equipo.
  *
- * Risk signals (per PRD):
- *   - Belonging ≤ 2.5
- *   - Energy ≤ 2.5
- *   - Workload ≥ 4
- *   - Stress ≥ 4
- *   - 2-period OWI decline
+ * **Qué calcula**: La probabilidad de que miembros del equipo
+ * renuncien, basada en señales de insatisfacción como baja pertenencia,
+ * alta carga de trabajo y tendencia negativa del OWI.
  *
- * Scoring:
- *   4 signals + decline → CRITICAL
- *   3 signals           → HIGH
- *   2 signals           → MEDIUM
- *   0-1 signal          → LOW
+ * **Cómo se interpreta**:
+ *   - LOW:      Riesgo bajo de rotación. Equipo estable.
+ *   - MEDIUM:   Dos señales de alerta. Revisar clima laboral.
+ *   - HIGH:     Tres o más señales. Preparar plan de retención.
+ *   - CRITICAL: Cuatro señales con tendencia negativa. Riesgo inminente
+ *               de pérdida de talento — escalar a dirección.
+ *
+ * **Ejemplo**: Un equipo con belonging=2, energy=2, workload=4.5,
+ * stress=4.5 y OWI en descenso (de 60 a 45) tiene riesgo CRITICAL
+ * de rotación.
+ *
+ * **Señales de riesgo**:
+ *   - Pertenencia ≤ 2.5 (el colaborador no se siente parte del equipo)
+ *   - Energía ≤ 2.5 (desmotivación o fatiga)
+ *   - Carga de trabajo ≥ 4 (sobrecarga)
+ *   - Estrés ≥ 4 (presión excesiva)
+ *   - OWI en descenso por 2 períodos consecutivos (tendencia negativa)
  */
 export function calculateAttritionRisk(
   averages: TeamAverages,

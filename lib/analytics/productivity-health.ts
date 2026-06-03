@@ -1,17 +1,26 @@
 import { RISK_LEVEL, type TeamAverages, type RiskLevel } from "@/lib/types";
 
 /**
- * Productivity health classification at team level.
+ * Clasificación de salud productiva a nivel de equipo.
  *
- * Factors (PRD): clarity, energy, workload balance, belonging.
+ * **Qué calcula**: Una evaluación de qué tan productivo está el equipo
+ * basada en claridad de objetivos, nivel de energía, equilibrio de carga
+ * y sentido de pertenencia.
  *
- * Each dimension is scored as "healthy" if ≥ 3.5 on a 1-5 raw scale.
+ * **Cómo se interpreta**:
+ *   - LOW:      4 de 4 dimensiones saludables. Equipo productivo y alineado.
+ *   - MEDIUM:   3 de 4. Mayormente bien pero con un área a mejorar.
+ *   - HIGH:     2 de 4. La productividad está comprometida en varias áreas.
+ *   - CRITICAL: 0-1 de 4. El equipo no puede rendir. Intervención urgente.
  *
- * Mapping:
- *   4 healthy → LOW risk   (good productivity)
- *   3 healthy → MEDIUM
- *   2 healthy → HIGH
- *   0-1       → CRITICAL
+ * **Ejemplo**: Un equipo con claridad=4, energía=4, carga=2, pertenencia=4
+ * tiene 4 dimensiones saludables → riesgo LOW (buena productividad).
+ *
+ * **Umbrales de salud por dimensión**:
+ *   - Claridad ≥ 3.5 (el equipo entiende sus objetivos)
+ *   - Energía ≥ 3.5 (el equipo tiene motivación)
+ *   - Carga de trabajo ≤ 3.5 (no hay sobrecarga)
+ *   - Pertenencia ≥ 3.5 (hay cohesión de equipo)
  */
 export function calculateProductivityHealth(
   averages: TeamAverages,

@@ -11,6 +11,8 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
+    "test": "vitest run",
+    "verify:scenarios": "bun scripts/verify-scenarios.ts",
     "seed": "bun scripts/seed.ts",
     "seed:reset": "bunx prisma migrate reset --force && bun scripts/seed.ts",
     "start": "next start"
@@ -41,7 +43,8 @@
     "postcss": "latest",
     "prisma": "latest",
     "tailwindcss": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vitest": "^4.1.8"
   },
   "trustedDependencies": [
     "@prisma/engines",

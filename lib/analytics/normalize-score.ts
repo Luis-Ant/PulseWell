@@ -1,11 +1,25 @@
 /**
- * Normalize a raw 1-5 pulse survey score to a 0-100 scale.
+ * Normaliza una puntuación de encuesta pulse (escala 1-5) a una escala
+ * estándar de 0-100 para facilitar la comparación entre dimensiones.
  *
- * Positive dimensions (energy, belonging, clarity):
- *   Higher raw = better → direct normalization
+ * **Qué calcula**: Convierte cualquier valor de encuesta en una
+ * puntuación de 0 a 100, donde 100 es el mejor resultado posible.
  *
- * Negative dimensions (stress, workload):
- *   Higher raw = worse → invert before normalization
+ * **Cómo se interpreta**:
+ *   - 100: Situación ideal (ej. energía máxima, estrés mínimo)
+ *   - 0:   Situación crítica (ej. energía mínima, estrés máximo)
+ *   - 50:  Punto medio — requiere monitoreo
+ *
+ * **Ejemplo**: Una puntuación de energía raw=4 se convierte a 75,
+ * mientras que una puntuación de estrés raw=4 se convierte a 25
+ * (porque estrés alto es negativo para el bienestar).
+ *
+ * **Polaridad**:
+ *   - "positive": Dimensiones donde más es mejor (energía, pertenencia, claridad)
+ *   - "negative": Dimensiones donde más es peor (estrés, carga de trabajo)
+ *     — se invierten automáticamente
+ *
+ * Los valores fuera del rango 1-5 se recortan automáticamente.
  */
 
 export type DimensionPolarity = "positive" | "negative";

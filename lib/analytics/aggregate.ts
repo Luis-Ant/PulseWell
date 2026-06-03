@@ -12,11 +12,23 @@ export interface AggregationResult extends TeamAverages {
 }
 
 /**
- * Aggregate raw SurveyResult scores for a given team and week period.
+ * Agrega resultados de encuestas pulse para un equipo y período.
  *
- * Fetches all SurveyResult rows matching `teamId` and `period`,
- * then computes per-dimension averages and calls `calculateOwiWeighted`
- * to derive the weighted OWI.
+ * **Qué calcula**: Los promedios por dimensión (energía, pertenencia,
+ * claridad, estrés, carga) a partir de todas las respuestas individuales
+ * de un equipo en una semana específica.
+ *
+ * **Cómo se interpreta**: Los promedios representan el estado general
+ * del equipo. Valores atípicos individuales se diluyen en el agregado,
+ * protegiendo la privacidad mientras se obtiene una visión de conjunto.
+ *
+ * **Ejemplo**: Si 10 miembros del equipo Marketing responden la encuesta,
+ * esta función calcula el promedio de cada dimensión (ej. energía=3.8,
+ * estrés=2.1) y los consolida para alimentar los indicadores de riesgo.
+ *
+ * **Nota**: Esta función consulta la base de datos (Prisma). Usar solo
+ * en el servidor (Server Components, API routes, scripts). No usar en
+ * el cliente.
  */
 export async function aggregateTeamData(
   teamId: string,

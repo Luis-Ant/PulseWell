@@ -1,9 +1,20 @@
 import type { TrendClassification } from "@/lib/types";
 
 /**
- * Compute OWI trend between two periods.
+ * Calcula la tendencia del OWI entre dos períodos consecutivos.
  *
- * @returns delta (current - previous) and classification.
+ * **Qué calcula**: La dirección del cambio en el bienestar del equipo
+ * comparando el OWI actual con el del período anterior.
+ *
+ * **Cómo se interpreta**:
+ *   - improving: El bienestar mejoró más de 2 puntos → continuar acciones
+ *   - declining: El bienestar empeoró más de 2 puntos → investigar causas
+ *   - stable:    El cambio está dentro de ±2 puntos → situación controlada
+ *
+ * **Ejemplo**: OWI pasó de 65 a 70 en una semana → delta=5, "improving".
+ * El equipo muestra una recuperación positiva del bienestar.
+ *
+ * @returns delta (diferencia actual - anterior) y clasificación textual.
  */
 export function calculateTrend(
   currentOwi: number,
@@ -17,12 +28,27 @@ export function calculateTrend(
 }
 
 /**
- * Simple linear regression projection over OWI history.
+ * Proyección lineal del OWI para el próximo período.
  *
- * Projects 1 period (week) forward from the last data point.
+ * **Qué calcula**: Una estimación de hacia dónde va el bienestar del
+ * equipo basándose en el historial de OWI. Usa regresión lineal simple
+ * para proyectar 1 período hacia adelante.
  *
- * @param owiHistory — array of past OWI scores in chronological order.
- * @returns Projected OWI for the next period, or null if < 2 data points.
+ * **Cómo se interpreta**:
+ *   - Proyección > OWI actual: La tendencia indica mejora continua
+ *   - Proyección ≈ OWI actual: Se espera estabilidad
+ *   - Proyección < OWI actual: La tendencia indica posible deterioro
+ *
+ * **Ejemplo**: Con historial [50, 60, 70], la proyección es ~80,
+ * indicando que si la tendencia continúa, el equipo alcanzará un
+ * bienestar saludable la próxima semana.
+ *
+ * **Limitación**: Es una proyección matemática simple, no un predictor
+ * exacto. Factores externos (cambios organizacionales, eventos) pueden
+ * alterar la trayectoria real.
+ *
+ * @param owiHistory — historial de puntuaciones OWI en orden cronológico.
+ * @returns OWI proyectado para el próximo período, o null si hay < 2 datos.
  */
 export function calculateProjection(owiHistory: number[]): number | null {
   if (owiHistory.length < 2) return null;

@@ -3,10 +3,23 @@ import type { PrivacyGuardResult } from "@/lib/types";
 const DEFAULT_MIN_RESPONSES = 5;
 
 /**
- * Privacy guard — enforces minimum response count before exposing team metrics.
+ * Guardia de privacidad — asegura que las métricas de equipo solo se
+ * muestren cuando hay suficientes respuestas para proteger el anonimato.
  *
- * Returns {@link PrivacyGuardResult} with `sufficient: false` and a Spanish
- * privacy message when the team has too few responses.
+ * **Qué calcula**: Verifica si la cantidad de respuestas de un equipo
+ * alcanza el umbral mínimo necesario para mostrar métricas agregadas
+ * sin riesgo de identificar a colaboradores individuales.
+ *
+ * **Cómo se interpreta**:
+ *   - sufficient=true:  Hay datos suficientes, se pueden mostrar métricas
+ *   - sufficient=false: Datos insuficientes, mostrar mensaje de privacidad
+ *
+ * **Ejemplo**: Un equipo con 3 respuestas y umbral=5 devuelve
+ * sufficient=false con el mensaje "Datos insuficientes para mostrar
+ * métricas de equipo" para proteger la privacidad individual.
+ *
+ * **Umbral por defecto**: 5 respuestas. Este valor puede ajustarse según
+ * el tamaño del equipo y las políticas de privacidad de la organización.
  */
 export function privacyGuard(
   responseCount: number,

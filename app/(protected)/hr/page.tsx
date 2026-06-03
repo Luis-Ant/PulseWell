@@ -2,7 +2,7 @@ import { getUser } from "@/lib/auth";
 import { requireRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/prisma";
 import { USER_ROLE, type TeamMetrics } from "@/lib/types";
-import { calculateProductivityHealth } from "@/lib/analytics";
+import { calculateProductivityHealth, calculateProjection } from "@/lib/analytics";
 import { AlertTriangle, TrendingUp, Users } from "lucide-react";
 
 import { MetricCard } from "@/components/dashboard/metric-card";
@@ -229,6 +229,12 @@ export default async function HrPage() {
 
   const activeTeams = teamMetricsList.filter((t) => !t.insufficientData).length;
 
+  // ── Projection ───────────────────────────────────────────────────
+  const allTeamOwis = teamMetricsList
+    .filter((t) => !t.insufficientData)
+    .map((t) => t.owi);
+  const projectedOwi = calculateProjection(allTeamOwis);
+
   // ── Render ────────────────────────────────────────────────────────
   const hasAnyData = teamMetricsList.some((t) => !t.insufficientData);
 
@@ -249,7 +255,7 @@ export default async function HrPage() {
       </div>
 
       {/* ── Global Metrics Row ──────────────────────────────────── */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           icon={TrendingUp}
           label="OWI Global"
@@ -283,6 +289,27 @@ export default async function HrPage() {
                 : alerts.length <= 5
                   ? "HIGH"
                   : "CRITICAL"
+          }
+        />
+
+        <MetricCard
+          icon={TrendingUp}
+          label="OWI Proyectado (Simulación)"
+          value={
+            projectedOwi !== null
+              ? String(Math.round(projectedOwi))
+              : "Datos insuficientes"
+          }
+          status={
+            projectedOwi !== null
+              ? projectedOwi >= 70
+                ? "LOW"
+                : projectedOwi >= 50
+                  ? "MEDIUM"
+                  : projectedOwi >= 30
+                    ? "HIGH"
+                    : "CRITICAL"
+              : undefined
           }
         />
       </div>
