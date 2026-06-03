@@ -4,8 +4,11 @@
 // ────────────────────────────────────────────────────────────────────────────────
 
 import { createClient } from "@supabase/supabase-js";
-import type { UserRole, RiskLevel } from "@prisma/client";
+import type { UserRole, RiskLevel, AlertType, AlertSeverity } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+import { generateAlerts, generateRecommendations } from "../lib/alerts";
+import type { TeamAlertInput } from "../lib/alerts";
+import { calculateProjection } from "../lib/analytics";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -377,180 +380,143 @@ export async function runSeed(): Promise<SeedResult> {
   }
   console.log(`  ✅ ${wellbeingCount} wellbeing scores upserted`);
 
-  // ── SmartAlerts ─────────────────────────────────────────────────────────────
-  console.log("\n🚨 Creating smart alerts...");
+  // ── SmartAlerts + Recommendations (dynamic engine) ──────────────────────────
+  console.log("\n🚨 Generating smart alerts and recommendations...");
 
-  const engTeamId = teamIdMap.get("Engineering")!;
-  const salesTeamId = teamIdMap.get("Sales")!;
-  const opsTeamId = teamIdMap.get("Operations")!;
+  // Build team alert inputs from the latest week's data
+  const lastWeek = WEEKS[WEEKS.length - 1];
+  const teamInputs: TeamAlertInput[] = [];
+  const owiHistoryByTeam = new Map<string, number[]>();
+  const decliningTrendTeams = new Set<string>();
 
-  // Alert 1: Engineering burnout alert (HIGH severity)
-  const alert1 = await prisma.smartAlert.upsert({
-    where: { id: "alert-eng-burnout" },
-    update: {
-      type: "BURNOUT",
-      severity: "HIGH",
-      message: "Engineering team OWI dropped 49% over 4 weeks — burnout risk is critical.",
-      driver: "Sustained high workload + declining belonging scores",
-      isActive: true,
-    },
-    create: {
-      id: "alert-eng-burnout",
-      teamId: engTeamId,
-      type: "BURNOUT",
-      severity: "HIGH",
-      message: "Engineering team OWI dropped 49% over 4 weeks — burnout risk is critical.",
-      driver: "Sustained high workload + declining belonging scores",
-      isActive: true,
-    },
-  });
-  console.log(`  ✅ Alert: ${alert1.message.slice(0, 50)}...`);
+  for (const team of TEAMS) {
+    const teamName = team.name;
+    const teamId = teamIdMap.get(teamName)!;
+    const trend = TEAM_TRENDS[teamName];
 
-  // Alert 2: Sales attrition risk (MEDIUM severity)
-  const alert2 = await prisma.smartAlert.upsert({
-    where: { id: "alert-sales-attrition" },
-    update: {
-      type: "ATTRITION",
-      severity: "MEDIUM",
-      message: "Sales team showing declining engagement trends — attrition risk is rising.",
-      driver: "Consistent OWI decline + low clarity scores",
-      isActive: true,
-    },
-    create: {
-      id: "alert-sales-attrition",
-      teamId: salesTeamId,
-      type: "ATTRITION",
-      severity: "MEDIUM",
-      message: "Sales team showing declining engagement trends — attrition risk is rising.",
-      driver: "Consistent OWI decline + low clarity scores",
-      isActive: true,
-    },
-  });
-  console.log(`  ✅ Alert: ${alert2.message.slice(0, 50)}...`);
+    // Collect OWI history for projection + trend detection
+    const owiHistory = trend.owi;
+    owiHistoryByTeam.set(teamName, owiHistory);
 
-  // Alert 3: Operations stable (LOW severity — positive check)
-  // Wait, LOW is not a valid AlertSeverity value? No, LOW IS in AlertSeverity: LOW, MEDIUM, HIGH, CRITICAL
-  const alert3 = await prisma.smartAlert.upsert({
-    where: { id: "alert-ops-stable" },
-    update: {
-      type: "WELLBEING",
-      severity: "LOW",
-      message: "Operations team maintaining stable wellbeing throughout Q2.",
-      driver: "Consistent scores, no significant declines detected",
-      isActive: true,
-    },
-    create: {
-      id: "alert-ops-stable",
-      teamId: opsTeamId,
-      type: "WELLBEING",
-      severity: "LOW",
-      message: "Operations team maintaining stable wellbeing throughout Q2.",
-      driver: "Consistent scores, no significant declines detected",
-      isActive: true,
-    },
-  });
-  console.log(`  ✅ Alert: ${alert3.message.slice(0, 50)}...`);
+    // Detect declining trend: 2+ consecutive OWI drops AND latest OWI < 70
+    let consecutiveDeclines = 0;
+    for (let i = 1; i < owiHistory.length; i++) {
+      if (owiHistory[i] < owiHistory[i - 1]) {
+        consecutiveDeclines++;
+      } else {
+        consecutiveDeclines = 0;
+      }
+    }
+    if (consecutiveDeclines >= 2 && owiHistory[owiHistory.length - 1] < 70) {
+      decliningTrendTeams.add(teamName);
+    }
 
-  // Alert 4: Engineering productivity trend (MEDIUM severity)
-  const alert4 = await prisma.smartAlert.upsert({
-    where: { id: "alert-eng-productivity" },
-    update: {
-      type: "PRODUCTIVITY",
-      severity: "MEDIUM",
-      message: "Engineering energy scores dropping — productivity impact likely within 2 weeks.",
-      driver: "Energy scores declined from 8 to 4 over the period",
-      isActive: true,
-    },
-    create: {
-      id: "alert-eng-productivity",
-      teamId: engTeamId,
-      type: "PRODUCTIVITY",
-      severity: "MEDIUM",
-      message: "Engineering energy scores dropping — productivity impact likely within 2 weeks.",
-      driver: "Energy scores declined from 8 to 4 over the period",
-      isActive: true,
-    },
-  });
-  console.log(`  ✅ Alert: ${alert4.message.slice(0, 50)}...`);
+    // Use the last week's data
+    const lastIdx = WEEKS.length - 1;
+    teamInputs.push({
+      teamId,
+      teamName,
+      owi: trend.owi[lastIdx],
+      burnoutRisk: trend.burnout[lastIdx],
+      attritionRisk: trend.attrition[lastIdx],
+      productivityHealth: "LOW", // placeholder — computed below
+      period: lastWeek,
+    });
+  }
 
-  // ── Recommendations ─────────────────────────────────────────────────────────
-  console.log("\n💡 Creating recommendations...");
+  // Compute projected OWI per team
+  const projectedOwiByTeam = new Map<string, number | null>();
+  for (const team of TEAMS) {
+    const owiHistory = owiHistoryByTeam.get(team.name) ?? [];
+    projectedOwiByTeam.set(team.name, calculateProjection(owiHistory));
+  }
 
-  // Recommendation linked to alert1 (Eng burnout)
-  const rec1 = await prisma.recommendation.upsert({
-    where: { id: "rec-eng-workload" },
-    update: {
-      teamId: engTeamId,
-      alertId: alert1.id,
-      category: "workload",
-      action: "Redistribute sprint tickets across Engineering. Cap at 8 story points per engineer for the next 2 sprints.",
-    },
-    create: {
-      id: "rec-eng-workload",
-      teamId: engTeamId,
-      alertId: alert1.id,
-      category: "workload",
-      action: "Redistribute sprint tickets across Engineering. Cap at 8 story points per engineer for the next 2 sprints.",
-    },
-  });
-  console.log(`  ✅ Recommendation: ${rec1.action.slice(0, 50)}...`);
+  // Build lookup: teamId → projectedOwi (for the alert engine)
+  const projectedOwiByTeamId = new Map<string, number | null>();
+  for (const team of TEAMS) {
+    const teamName = team.name;
+    const teamId = teamIdMap.get(teamName)!;
+    projectedOwiByTeamId.set(
+      teamId,
+      projectedOwiByTeam.get(teamName) ?? null,
+    );
+  }
 
-  // Recommendation linked to alert1 (Eng burnout — wellness action)
-  const rec2 = await prisma.recommendation.upsert({
-    where: { id: "rec-eng-beloning" },
-    update: {
-      teamId: engTeamId,
-      alertId: alert1.id,
-      category: "team-building",
-      action: "Schedule a team offsite or hackathon. Belonging scores are the fastest declining metric.",
-    },
-    create: {
-      id: "rec-eng-beloning",
-      teamId: engTeamId,
-      alertId: alert1.id,
-      category: "team-building",
-      action: "Schedule a team offsite or hackathon. Belonging scores are the fastest declining metric.",
-    },
-  });
-  console.log(`  ✅ Recommendation: ${rec2.action.slice(0, 50)}...`);
+  // Build lookup: teamName → teamId for declining trend detection
+  const decliningTrendTeamIds = new Set<string>();
+  for (const teamName of decliningTrendTeams) {
+    const teamId = teamIdMap.get(teamName);
+    if (teamId) decliningTrendTeamIds.add(teamId);
+  }
 
-  // Recommendation linked to alert2 (Sales attrition)
-  const rec3 = await prisma.recommendation.upsert({
-    where: { id: "rec-sales-clarity" },
-    update: {
-      teamId: salesTeamId,
-      alertId: alert2.id,
-      category: "workload",
-      action: "Run a roadmap clarity session with Sales leadership. Low clarity scores are driving attrition risk.",
-    },
-    create: {
-      id: "rec-sales-clarity",
-      teamId: salesTeamId,
-      alertId: alert2.id,
-      category: "workload",
-      action: "Run a roadmap clarity session with Sales leadership. Low clarity scores are driving attrition risk.",
-    },
-  });
-  console.log(`  ✅ Recommendation: ${rec3.action.slice(0, 50)}...`);
+  const alerts = generateAlerts(
+    teamInputs,
+    projectedOwiByTeamId,
+    decliningTrendTeamIds,
+  );
 
-  // Recommendation for stable ops (wellness maintenance)
-  const rec4 = await prisma.recommendation.upsert({
-    where: { id: "rec-ops-continue" },
-    update: {
-      teamId: opsTeamId,
-      alertId: alert3.id,
-      category: "wellness",
-      action: "Continue current wellness initiatives. Operations team is a model for other departments.",
-    },
-    create: {
-      id: "rec-ops-continue",
-      teamId: opsTeamId,
-      alertId: alert3.id,
-      category: "wellness",
-      action: "Continue current wellness initiatives. Operations team is a model for other departments.",
-    },
-  });
-  console.log(`  ✅ Recommendation: ${rec4.action.slice(0, 50)}...`);
+  let generatedAlertCount = 0;
+  const savedAlerts: Array<{ id: string; type: string; teamId: string }> = [];
+
+  for (const alert of alerts) {
+    const id = `alert-${alert.teamId}-${alert.type.toLowerCase()}-${Date.now()}`;
+    await prisma.smartAlert.upsert({
+      where: { id },
+      update: {
+        type: alert.type as AlertType,
+        severity: alert.severity as AlertSeverity,
+        message: alert.message,
+        driver: alert.driver,
+        isActive: true,
+      },
+      create: {
+        id,
+        teamId: alert.teamId,
+        type: alert.type as AlertType,
+        severity: alert.severity as AlertSeverity,
+        message: alert.message,
+        driver: alert.driver,
+        isActive: true,
+      },
+    });
+    savedAlerts.push({ id, type: alert.type, teamId: alert.teamId });
+    generatedAlertCount++;
+    console.log(`  ✅ Alert: ${alert.message.slice(0, 50)}...`);
+  }
+  console.log(`  ✅ ${generatedAlertCount} alerts generated`);
+
+  // ── Recommendations (linked to saved alerts) ────────────────────────────────
+  const recommendations = generateRecommendations(alerts);
+  let generatedRecCount = 0;
+
+  for (let i = 0; i < recommendations.length; i++) {
+    const rec = recommendations[i];
+    // Link to the corresponding alert (same index maps to same alert since
+    // recommendations are generated in the same order as alerts)
+    const alertIdx = Math.min(i, savedAlerts.length - 1);
+    const linkedAlert = savedAlerts[alertIdx];
+
+    const id = `rec-${linkedAlert.teamId}-${Date.now()}-${i}`;
+    await prisma.recommendation.upsert({
+      where: { id },
+      update: {
+        teamId: rec.teamId,
+        alertId: linkedAlert.id,
+        category: rec.category,
+        action: rec.action,
+      },
+      create: {
+        id,
+        teamId: rec.teamId,
+        alertId: linkedAlert.id,
+        category: rec.category,
+        action: rec.action,
+      },
+    });
+    generatedRecCount++;
+    console.log(`  ✅ Recommendation: ${rec.action.slice(0, 50)}...`);
+  }
+  console.log(`  ✅ ${generatedRecCount} recommendations generated`);
 
   // ── Summary ─────────────────────────────────────────────────────────────────
   const userCount = await prisma.user.count();
