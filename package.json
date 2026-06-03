@@ -7,7 +7,7 @@
     "dev": "next dev",
     "postinstall": "prisma generate",
     "build": "next build",
-    "lint": "eslint .",
+    "lint": "eslint . --ignore-pattern 'playwright-report/**' --ignore-pattern 'test-results/**'",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",

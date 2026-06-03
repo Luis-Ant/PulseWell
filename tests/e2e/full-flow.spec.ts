@@ -61,8 +61,6 @@ test.describe("Full Survey Flow", { tag: ["@critical", "@e2e", "@survey"] }, () 
       await expect(page.getByText("Período:")).toBeVisible();
       
       // Answer all 5 questions with different scores
-      const scoreButtons = page.locator("button[aria-label]");
-      // Click score 4 for first question (energy)
       await page.getByLabel("Energía: 4").click();
       // Click score 3 for belonging
       await page.getByLabel("Pertenencia: 3").click();
