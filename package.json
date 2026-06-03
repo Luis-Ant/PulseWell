@@ -11,7 +11,7 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
-    "test": "vitest run",
+    "test": "bun test lib/ tests/unit/",
     "test:e2e": "bun seed:reset && playwright test",
     "verify:scenarios": "bun scripts/verify-scenarios.ts",
     "seed": "bun scripts/seed.ts",
