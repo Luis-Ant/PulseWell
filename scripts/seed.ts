@@ -599,11 +599,16 @@ async function main() {
   console.log("  ... (see scripts/seed.ts for full list)");
 }
 
-main()
-  .catch((e) => {
-    console.error("❌ Seed failed:", e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// Only execute main() when this file is the ENTRY POINT (bun scripts/seed.ts),
+// NEVER when imported as a module (e.g., by API routes during Next.js build).
+// import.meta.main is the standard ESM way to detect direct execution.
+if (import.meta.main) {
+  main()
+    .catch((e) => {
+      console.error("❌ Seed failed:", e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

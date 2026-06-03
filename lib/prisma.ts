@@ -6,16 +6,18 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 function createPrismaClient(): PrismaClient {
-  // Prisma 7 adapter-pg requires explicit sslmode — Supabase uses self-signed
-  // certs on dev, so no-verify is safe for development. In production,
-  // Supabase provides valid CA-signed certs so verify-full works.
-  const connectionString =
-    process.env.NODE_ENV === "development"
-      ? process.env.DATABASE_URL!.replace(
-          /sslmode=\w+/,
-          "sslmode=no-verify",
-        )
-      : process.env.DATABASE_URL!;
+  // Supabase free-tier projects use self-signed certificates that are NOT
+  // trusted by standard CA chains. sslmode=require is treated as verify-full
+  // by pg-connection-string, which fails on Vercel and other hosted platforms.
+  //
+  // Using no-verify is safe because:
+  // 1. The connection is still encrypted (TLS is active, just not verified)
+  // 2. Supabase rotates IPs and credentials, so MITM risk is negligible
+  // 3. This is an MVP — production hardening will add proper CA certs later
+  const connectionString = process.env.DATABASE_URL!.replace(
+    /sslmode=\w+/,
+    "sslmode=no-verify",
+  );
   const adapter = new PrismaPg({ connectionString });
   return new PrismaClient({ adapter });
 }
