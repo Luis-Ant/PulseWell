@@ -12,6 +12,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "test": "vitest run",
+    "test:e2e": "bun seed:reset && playwright test",
     "verify:scenarios": "bun scripts/verify-scenarios.ts",
     "seed": "bun scripts/seed.ts",
     "seed:reset": "bunx prisma migrate reset --force && bun scripts/seed.ts",
@@ -33,6 +34,7 @@
     "tailwind-merge": "latest"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
