@@ -25,80 +25,118 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50">
-      {/* Auth-aware header bar */}
+      {/* ─── Header ──────────────────────────────────────── */}
       <header className="border-b border-slate-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <Link
             href="/"
-            className="text-lg font-bold tracking-tight text-white"
+            className="font-display text-xl uppercase tracking-[0.15em] text-white"
           >
-            PulseWell
+            PULSEWELL
           </Link>
 
           {user ? (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-400">{user.name}</span>
+              <span className="font-ui text-sm tracking-wide text-slate-400">
+                {user.name}
+              </span>
               <Button
                 variant="secondary"
                 asChild
-                className="px-3 py-1.5 text-xs"
+                className="font-ui px-3 py-1.5 text-xs tracking-wide"
               >
                 <Link href={getDashboardPath(user.role)}>Dashboard</Link>
               </Button>
             </div>
           ) : (
-            <Button asChild className="px-3 py-1.5 text-xs">
+            <Button asChild className="font-ui px-3 py-1.5 text-xs tracking-wide">
               <Link href="/auth/login">Iniciar sesión</Link>
             </Button>
           )}
         </div>
       </header>
 
+      {/* ─── Hero ────────────────────────────────────────── */}
       <section className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-6 py-12 md:py-20">
-        <div className="flex flex-col gap-6">
-          <div className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-300">
-            <Brain className="size-4 text-cyan-300" />
-            Organizational Wellbeing Intelligence Platform
-          </div>
+        <div className="flex flex-col gap-8">
+          {/* Section kicker — Ailerons all caps */}
+          <p className="font-display text-xs uppercase tracking-[0.3em] text-cyan-300">
+            Organizational Wellbeing Intelligence
+          </p>
 
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-            <div className="flex flex-col gap-5">
-              <h1 className="max-w-4xl text-4xl font-bold tracking-tight text-white md:text-6xl">
-                Converte señales de bienestar en decisiones inteligentes.
+          {/* Hero headline + OWI card */}
+          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
+            <div className="flex flex-col gap-6">
+              <h1 className="font-heading max-w-4xl text-5xl font-bold leading-[1.05] tracking-tight text-white md:text-7xl">
+                Convertí señales
+                <br />
+                de bienestar en
+                <br />
+                decisiones inteligentes.
               </h1>
-              <p className="max-w-2xl text-lg leading-8 text-slate-300">
+              <p className="font-light max-w-2xl text-lg leading-8 text-slate-400">
                 PulseWell ayuda a Recursos Humanos y líderes de equipo a detectar
                 riesgos de burnout, baja energía y desconexión antes de que escalen.
               </p>
             </div>
 
-            <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl shadow-cyan-950/40">
-              <p className="text-sm font-medium uppercase tracking-wide text-slate-400">
-                Organizational Wellbeing Index
+            {/* OWI Score Card */}
+            <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-2xl shadow-cyan-950/40 lg:mt-4">
+              <p className="font-ui text-xs font-medium uppercase tracking-[0.15em] text-slate-500">
+                índice OWI
               </p>
               <div className="mt-4 flex items-end gap-3">
-                <span className="text-6xl font-bold text-white">{summary.owi}</span>
-                <span className="pb-2 text-sm text-emerald-300">/ 100</span>
+                <span className="font-heading text-7xl font-bold leading-none text-white">
+                  {summary.owi}
+                </span>
+                <span className="font-subheading pb-1 text-lg tracking-wide text-emerald-300">
+                  / 100
+                </span>
               </div>
-              <p className="mt-4 text-sm text-slate-400">
-                Score sintético del MVP para validar tendencias y alertas preventivas.
+              <div className="mt-6 h-px w-full bg-gradient-to-r from-slate-800 to-transparent" />
+              <p className="font-light mt-4 text-sm leading-relaxed text-slate-500">
+                Score sintético del MVP para validar tendencias y alertas
+                preventivas.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button>Ver dashboard demo</Button>
-            <Button variant="secondary">Revisar alcance MVP</Button>
+          {/* CTA buttons */}
+          <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+            <Button className="font-brand text-sm tracking-wide">
+              Ver dashboard demo
+            </Button>
+            <Button variant="secondary" className="font-light text-sm">
+              Revisar alcance MVP
+            </Button>
           </div>
         </div>
 
+        {/* ─── Metrics Grid ──────────────────────────────── */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <MetricCard icon={Activity} label="Energía" value={`${summary.energy}/5`} />
-          <MetricCard icon={ShieldCheck} label="Riesgo burnout" value={summary.burnoutRisk} />
-          <MetricCard icon={TrendingUp} label="Tendencia" value={summary.trend} />
-          <MetricCard icon={Brain} label="Equipos analizados" value={`${summary.teams}`} />
+          <MetricCard
+            icon={Activity}
+            label="Energía"
+            value={`${summary.energy}/5`}
+          />
+          <MetricCard
+            icon={ShieldCheck}
+            label="Riesgo burnout"
+            value={summary.burnoutRisk}
+          />
+          <MetricCard
+            icon={TrendingUp}
+            label="Tendencia"
+            value={summary.trend}
+          />
+          <MetricCard
+            icon={Brain}
+            label="Equipos"
+            value={`${summary.teams}`}
+          />
         </div>
 
+        {/* ─── Feature Cards ─────────────────────────────── */}
         <div className="grid gap-4 lg:grid-cols-3">
           <SectionCard
             title="Analítica agregada"

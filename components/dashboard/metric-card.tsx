@@ -40,11 +40,15 @@ export function MetricCard({
   return (
     <article className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg shadow-slate-950/50">
       <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-slate-400">{label}</p>
+        <p className="font-ui text-xs tracking-[0.12em] uppercase text-slate-500">
+          {label}
+        </p>
         <Icon className="size-5 text-cyan-300" />
       </div>
 
-      <p className="mt-4 text-3xl font-bold text-white">{value}</p>
+      <p className="font-heading mt-4 text-3xl font-bold leading-none text-white">
+        {value}
+      </p>
 
       <div className="mt-3 flex items-center gap-3">
         {trend && (
