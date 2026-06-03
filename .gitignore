@@ -23,6 +23,10 @@ bun-debug.log*
 # Build cache
 *.tsbuildinfo
 
+# Playwright
+test-results/
+playwright-report/
+
 # OS / editors
 .DS_Store
 .idea/
