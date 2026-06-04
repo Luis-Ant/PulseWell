@@ -193,7 +193,9 @@ export default async function ManagerPage() {
         <h1 className="text-3xl font-bold text-white">Panel de Manager</h1>
         <p className="mt-1 text-sm text-slate-400">
           Bienestar de{" "}
-          <span className="font-semibold text-slate-300">{team.name}</span>.
+          <span className="font-semibold text-slate-300">{team.name}</span>
+          {" · "}
+          <span className="text-slate-500">{formatPeriod(latestScore.period ?? "")}</span>.
           Los datos se muestran de forma agregada para preservar la privacidad individual.
         </p>
       </div>
@@ -224,15 +226,16 @@ export default async function ManagerPage() {
         {projectedOwi !== null && (
           <MetricCard
             icon={TrendingUp}
-            label="OWI Proyectado (Simulación)"
+            label="OWI Proyectado"
             value={String(Math.round(projectedOwi))}
             status={classifyOwi(projectedOwi)}
           />
         )}
         <MetricCard
           icon={Brain}
-          label="Período"
-          value={formatPeriod(latestScore.period ?? "")}
+          label="Productividad"
+          value={productivityHealth === "LOW" ? "Baja" : productivityHealth === "MEDIUM" ? "Media" : productivityHealth === "HIGH" ? "Alta" : "Crítica"}
+          status={productivityHealth}
         />
       </div>
 

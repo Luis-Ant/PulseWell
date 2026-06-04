@@ -57,24 +57,19 @@ export function LoginForm() {
       </Button>
 
       <div className="mt-6 rounded-lg border border-slate-700 bg-slate-900 p-4">
-        <p className="mb-2 text-sm font-medium text-slate-400">
-          Credenciales demo:
+        <p className="mb-2 text-xs font-semibold text-slate-400">
+          Cuentas demo:
         </p>
-        <div className="space-y-1.5">
-          {[
-            { email: "admin@pulsewell.demo", role: "ADMIN" },
-            { email: "hr@pulsewell.demo", role: "HR_ANALYST" },
-            { email: "manager-eng@pulsewell.demo", role: "MANAGER" },
-            { email: "employee1-eng@pulsewell.demo", role: "EMPLOYEE" },
-          ].map(({ email, role }) => (
-            <div key={email} className="flex flex-wrap items-baseline gap-x-2">
-              <span className="font-mono text-xs text-slate-300">
-                {email}
-              </span>
-              <span className="text-[10px] text-slate-600">/ Demo1234!</span>
-              <span className="text-[10px] text-slate-600">({role})</span>
-            </div>
-          ))}
+        <p className="font-mono text-[11px] leading-relaxed text-slate-500">
+          admin@pulsewell.demo<br />
+          hr@pulsewell.demo<br />
+          manager-eng@pulsewell.demo<br />
+          employee1-eng@pulsewell.demo
+        </p>
+        <div className="mt-3 rounded-md border border-cyan-800/30 bg-cyan-950/20 px-3 py-2">
+          <p className="text-[11px] text-cyan-400">
+            Contraseña: <span className="font-mono font-bold text-cyan-300">Demo1234!</span>
+          </p>
         </div>
       </div>
     </form>

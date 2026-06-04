@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Activity, Brain, ShieldCheck, TrendingUp } from "lucide-react";
+import { Activity, Brain, ShieldCheck, TrendingUp, ClipboardList, Banknote } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { SectionCard } from "@/components/dashboard/section-card";
 import { Button } from "@/components/ui/button";
@@ -96,8 +96,7 @@ export default async function HomePage() {
               </div>
               <div className="mt-6 h-px w-full bg-gradient-to-r from-slate-800 to-transparent" />
               <p className="font-light mt-4 text-sm leading-relaxed text-slate-500">
-                Score sintético del MVP para validar tendencias y alertas
-                preventivas.
+                Indicador compuesto de bienestar organizacional. Se actualiza semanalmente con datos agregados de las encuestas.
               </p>
             </div>
           </div>
@@ -179,19 +178,19 @@ export default async function HomePage() {
             {
               title: "Encuestas tradicionales",
               description: "Datos sin procesar. Respuestas individuales visibles. Sin análisis automático. Requieren interpretación manual.",
-              icon: "📋",
+              icon: <ClipboardList className="size-6 text-slate-400" />,
               vs: "vs",
             },
             {
               title: "PulseWell",
               description: "Análisis agregado automático. Privacidad por diseño. Alertas tempranas con recomendaciones accionables. Sin exponer datos individuales.",
-              icon: "🧠",
+              icon: <Brain className="size-6 text-cyan-400" />,
               highlight: true,
             },
             {
               title: "Consultoría tradicional",
               description: "Cara, esporádica, basada en muestras. Resultados en semanas, no en tiempo real. Sin seguimiento continuo.",
-              icon: "💰",
+              icon: <Banknote className="size-6 text-slate-400" />,
               vs: "vs",
             },
           ].map((item) => (
@@ -200,11 +199,11 @@ export default async function HomePage() {
               className={`rounded-2xl border p-6 ${
                 item.highlight
                   ? "border-cyan-800/40 bg-gradient-to-b from-cyan-950/30 to-slate-900 ring-1 ring-cyan-400/20"
-                  : "border-slate-800 bg-slate-900/50"
+                  : "border-slate-800 bg-slate-900/50 hover:border-slate-600 hover:bg-slate-800/30 transition-all cursor-default"
               }`}
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{item.icon}</span>
+                {item.icon}
                 <h3 className={`text-sm font-bold ${item.highlight ? "text-cyan-300" : "text-slate-300"}`}>
                   {item.title}
                 </h3>
@@ -213,7 +212,7 @@ export default async function HomePage() {
                 {item.description}
               </p>
               {item.vs && (
-                <p className="mt-2 text-[10px] uppercase tracking-widest text-slate-600">{item.vs}</p>
+                <p className="mt-2 text-[10px] uppercase tracking-widest text-slate-400 font-semibold">{item.vs}</p>
               )}
             </div>
           ))}

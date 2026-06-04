@@ -1,4 +1,5 @@
 import { Check, Minus } from "lucide-react";
+import { formatPeriod } from "@/lib/format-utils";
 
 interface HistoryItem {
   period: string;
@@ -19,7 +20,7 @@ export function HistoryGrid({ history }: HistoryGridProps) {
             key={item.period}
             className="flex flex-1 flex-col items-center gap-2 rounded-xl border border-slate-800 p-3"
           >
-            <span className="text-[10px] text-slate-500">{item.period}</span>
+            <span className="text-[10px] text-slate-500">{formatPeriod(item.period)}</span>
             {item.responded ? (
               <Check className="size-5 text-emerald-400" />
             ) : (

@@ -10,28 +10,49 @@ interface ActionButtonProps {
   variant?: "primary" | "secondary";
 }
 
+type ActionStatus = "idle" | "loading" | "success" | "error";
+
 export function ActionButton({ action, label, variant = "secondary" }: ActionButtonProps) {
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<ActionStatus>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleClick() {
-    setLoading(true);
+    setStatus("loading");
+    setErrorMessage("");
     try {
-      await fetch(action, { method: "POST" });
-    } finally {
-      setLoading(false);
-      window.location.reload();
+      const res = await fetch(action, { method: "POST" });
+      if (!res.ok) {
+        const json = await res.json().catch(() => null);
+        throw new Error(json?.error?.message || "Error del servidor");
+      }
+      setStatus("success");
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (err) {
+      setStatus("error");
+      setErrorMessage(err instanceof Error ? err.message : "Error de conexión");
     }
   }
 
   return (
-    <Button
-      variant={variant}
-      className="text-xs"
-      onClick={handleClick}
-      disabled={loading}
-    >
-      {loading && <Loader2 className="mr-1.5 size-3 animate-spin" />}
-      {loading ? "Procesando..." : label}
-    </Button>
+    <div>
+      <Button
+        variant={variant}
+        className="text-xs"
+        onClick={handleClick}
+        disabled={status === "loading" || status === "success"}
+      >
+        {status === "loading" && <Loader2 className="mr-1.5 size-3 animate-spin" />}
+        {status === "loading"
+          ? "Procesando..."
+          : status === "success"
+            ? "✅ Completado"
+            : status === "error"
+              ? "❌ Error"
+              : label}
+      </Button>
+      {errorMessage && (
+        <p className="mt-1 text-xs text-red-400">{errorMessage}</p>
+      )}
+    </div>
   );
 }

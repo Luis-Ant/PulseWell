@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PrivacyBanner } from "@/components/shared/PrivacyBanner";
 import type { SURVEY_QUESTIONS } from "@/lib/survey-utils";
@@ -12,12 +12,13 @@ interface SurveyFormProps {
   questions: typeof SURVEY_QUESTIONS;
   period: string;
   onSubmitted: () => void;
+  onCancel?: () => void;
 }
 
 type Scores = Record<string, number | null>;
 
 // ── Component ──────────────────────────────────────────────────────────
-export function SurveyForm({ surveyName, questions, period, onSubmitted }: SurveyFormProps) {
+export function SurveyForm({ surveyName, questions, period, onSubmitted, onCancel }: SurveyFormProps) {
   const [scores, setScores] = useState<Scores>({});
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -90,6 +91,15 @@ export function SurveyForm({ surveyName, questions, period, onSubmitted }: Surve
     <div className="mx-auto max-w-2xl px-4 py-12">
       {/* Header */}
       <div className="mb-8">
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="mb-4 inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            <ArrowLeft className="size-3" />
+            Volver al panel
+          </button>
+        )}
         <h1 className="text-3xl font-bold text-white">{surveyName}</h1>
         <p className="mt-2 text-sm text-slate-400">
           Período: {period}
@@ -125,7 +135,7 @@ export function SurveyForm({ surveyName, questions, period, onSubmitted }: Surve
 
               {/* Likert scale */}
               <div className="flex items-center justify-between gap-1">
-                <span className="w-20 text-right text-xs text-slate-500">
+                <span className="min-w-[5rem] text-right text-xs text-slate-500">
                   {q.lowLabel}
                 </span>
 
@@ -150,7 +160,7 @@ export function SurveyForm({ surveyName, questions, period, onSubmitted }: Surve
                   })}
                 </div>
 
-                <span className="w-20 text-xs text-slate-500">
+                <span className="min-w-[5rem] text-xs text-slate-500">
                   {q.highLabel}
                 </span>
               </div>

@@ -33,7 +33,7 @@ const PHASES = [
   },
   {
     title: "Cumplimiento",
-    subtitle: "Q4 2026",
+    subtitle: "",
     status: "planned",
     description:
       "Fortalecimiento de confianza y alineación con el mercado mexicano.",
@@ -47,7 +47,7 @@ const PHASES = [
   },
   {
     title: "Integraciones",
-    subtitle: "Q1 2027",
+    subtitle: "",
     status: "planned",
     description:
       "Conexión con el ecosistema de trabajo sin comprometer la privacidad.",
@@ -61,7 +61,7 @@ const PHASES = [
   },
   {
     title: "SaaS Comercial",
-    subtitle: "Q2 2027",
+    subtitle: "",
     status: "planned",
     description:
       "Lanzamiento de versión lista para clientes de pago con todas las capacidades empresariales.",
@@ -138,17 +138,19 @@ export function RoadmapSection() {
                       >
                         {phase.title}
                       </h3>
-                      <span
-                        className={`text-xs px-2 py-0.5 rounded-full border ${
-                          isCompleted
-                            ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/5"
-                            : isNext
-                              ? "text-cyan-400 border-cyan-400/20 bg-cyan-400/5"
-                              : "text-slate-600 border-slate-600/20 bg-slate-600/5"
-                        }`}
-                      >
-                        {phase.subtitle}
-                      </span>
+                      {phase.subtitle && (
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded-full border ${
+                            isCompleted
+                              ? "text-emerald-400 border-emerald-400/20 bg-emerald-400/5"
+                              : isNext
+                                ? "text-cyan-400 border-cyan-400/20 bg-cyan-400/5"
+                                : "text-slate-600 border-slate-600/20 bg-slate-600/5"
+                          }`}
+                        >
+                          {phase.subtitle}
+                        </span>
+                      )}
                     </div>
                     <p className="mt-3 text-sm text-slate-400 leading-relaxed">
                       {phase.description}

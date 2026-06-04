@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { formatPeriod } from "@/lib/format-utils";
 interface TrendDataPoint {
   period: string;
   [teamName: string]: string | number;
@@ -78,7 +79,7 @@ function CustomTooltip({
           marginBottom: "8px",
         }}
       >
-        {label}
+        {formatPeriod(label!)}
       </p>
       {payload.map((entry) => (
         <div
@@ -143,6 +144,7 @@ export function TrendChart({ data }: TrendChartProps) {
               tick={{ fill: CHART_STYLE.axisText, fontSize: 12 }}
               axisLine={{ stroke: CHART_STYLE.gridLine }}
               tickLine={false}
+              tickFormatter={(val) => formatPeriod(val as string)}
             />
             <YAxis
               domain={[0, 100]}

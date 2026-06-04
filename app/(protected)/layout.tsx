@@ -16,11 +16,11 @@ function roleLabel(role: string): string {
     case "ADMIN":
       return "Admin";
     case "HR_ANALYST":
-      return "HR Analyst";
+      return "RRHH";
     case "MANAGER":
       return "Manager";
     case "EMPLOYEE":
-      return "Employee";
+      return "Empleado";
     default:
       return role;
   }
@@ -51,8 +51,8 @@ export default async function ProtectedLayout({
       <header className="border-b border-slate-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
-            <span className="font-brand text-lg font-bold tracking-tight text-white">
-              PulseWell
+            <span className="font-display text-lg uppercase tracking-[0.15em] text-white">
+              PULSEWELL
             </span>
             <span className="font-ui hidden rounded-full border border-slate-700 px-2.5 py-0.5 text-xs tracking-[0.12em] uppercase text-slate-500 sm:inline">
               {roleLabel(user.role)}

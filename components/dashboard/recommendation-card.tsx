@@ -53,7 +53,7 @@ export function RecommendationCard({ recommendation }: RecommendationCardProps) 
               key={step}
               className="flex items-start gap-2 text-sm text-slate-300"
             >
-              <span className="mt-1.5 size-1 shrink-0 rounded-full bg-cyan-400" />
+              <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-cyan-400" />
               {step}
             </li>
           ))}

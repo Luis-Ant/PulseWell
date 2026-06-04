@@ -23,8 +23,9 @@ export function StatsRow({ totalResponses, streak, teamParticipation }: StatsRow
     {
       icon: Users,
       label: "Participación del equipo",
-      value: teamParticipation !== null ? `${teamParticipation}%` : "—",
+      value: teamParticipation !== null ? `${teamParticipation}%` : "Privado",
       color: "text-cyan-400",
+      title: teamParticipation === null ? "Se requiere un mínimo de 5 miembros para mostrar participación" : undefined,
     },
   ];
 
@@ -34,6 +35,7 @@ export function StatsRow({ totalResponses, streak, teamParticipation }: StatsRow
         <div
           key={stat.label}
           className="flex flex-col items-center gap-1 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-center"
+          title={stat.title}
         >
           <stat.icon className={`size-5 ${stat.color}`} />
           <span className="text-lg font-bold text-white">{stat.value}</span>

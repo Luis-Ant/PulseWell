@@ -55,6 +55,7 @@ export function SurveyPageClient({
           setSubmitted(true);
           setShowForm(false);
         }}
+        onCancel={() => setShowForm(false)}
       />
     );
   }

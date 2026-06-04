@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { USER_ROLE, type TeamMetrics } from "@/lib/types";
 import { calculateProductivityHealth, calculateProjection } from "@/lib/analytics";
 import { formatPeriod } from "@/lib/format-utils";
-import { AlertTriangle, Lightbulb, TrendingUp, Users } from "lucide-react";
+import { AlertTriangle, Lightbulb, TrendingUp, Users, BarChart3 } from "lucide-react";
 
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { TeamGrid } from "@/components/dashboard/team-grid";
@@ -347,7 +347,7 @@ export default async function HrPage() {
 
         <MetricCard
           icon={TrendingUp}
-          label="OWI Proyectado (Simulación)"
+          label="OWI Proyectado"
           value={
             projectedOwi !== null
               ? String(Math.round(projectedOwi))
@@ -447,6 +447,7 @@ function InsufficientDataState() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-24 text-center">
       <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-900 p-12">
+        <BarChart3 className="mx-auto mb-4 size-10 text-slate-600" />
         <h1 className="text-3xl font-bold text-white">Panel de HR</h1>
         <p className="mt-4 leading-relaxed text-slate-400">
           Datos insuficientes para mostrar métricas de equipo.
