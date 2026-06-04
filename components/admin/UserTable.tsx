@@ -67,10 +67,24 @@ export function UserTable({ users: initialUsers }: { users: UserData[] }) {
     refresh();
   }
 
+  const [search, setSearch] = useState("");
+
+  const filtered = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
         <h2 className="text-lg font-semibold text-white">Usuarios ({users.length})</h2>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar usuario..."
+          className="ml-auto rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-200 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+        />
         <button
           onClick={() => {
             setEditingUser(null);
@@ -117,7 +131,7 @@ export function UserTable({ users: initialUsers }: { users: UserData[] }) {
             </tr>
           </thead>
           <tbody>
-            {users.map((u) => (
+            {filtered.map((u) => (
               <tr key={u.id} className="border-b border-slate-800/50">
                 <td className="px-4 py-3 text-slate-200">{u.name}</td>
                 <td className="px-4 py-3 font-mono text-xs text-slate-400">{u.email}</td>
@@ -145,10 +159,12 @@ export function UserTable({ users: initialUsers }: { users: UserData[] }) {
                 </td>
               </tr>
             ))}
-            {users.length === 0 && (
+            {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-sm text-slate-500">
-                  No hay usuarios creados.
+                  {users.length === 0
+                    ? "No hay usuarios creados."
+                    : "No se encontraron usuarios."}
                 </td>
               </tr>
             )}

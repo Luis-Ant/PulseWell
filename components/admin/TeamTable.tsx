@@ -53,10 +53,22 @@ export function TeamTable({ teams: initialTeams }: TeamTableProps) {
     refresh();
   }
 
+  const [search, setSearch] = useState("");
+
+  const filtered = teams.filter((t) =>
+    t.name.toLowerCase().includes(search.toLowerCase()),
+  );
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
         <h2 className="text-lg font-semibold text-white">Equipos ({teams.length})</h2>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar equipo..."
+          className="ml-auto rounded-lg border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs text-slate-200 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+        />
         <button
           onClick={() => {
             setEditingTeam(null);
@@ -84,7 +96,7 @@ export function TeamTable({ teams: initialTeams }: TeamTableProps) {
             </tr>
           </thead>
           <tbody>
-            {teams.map((team) => (
+            {filtered.map((team) => (
               <tr key={team.id} className="border-b border-slate-800/50">
                 <td className="px-4 py-3 text-slate-200">{team.name}</td>
                 <td className="px-4 py-3 text-slate-400">{team.userCount}</td>
@@ -127,10 +139,12 @@ export function TeamTable({ teams: initialTeams }: TeamTableProps) {
                 </td>
               </tr>
             ))}
-            {teams.length === 0 && (
+            {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-sm text-slate-500">
-                  No hay equipos creados.
+                  {teams.length === 0
+                    ? "No hay equipos creados."
+                    : "No se encontraron equipos."}
                 </td>
               </tr>
             )}
