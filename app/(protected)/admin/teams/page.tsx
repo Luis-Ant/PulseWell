@@ -1,8 +1,6 @@
 import { getUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { AdminNav } from "@/components/admin/AdminNav";
 import { TeamTable } from "@/components/admin/TeamTable";
-import { AutoRefresh } from "@/components/shared/AutoRefresh";
 import { Shield } from "lucide-react";
 
 export default async function AdminTeamsPage() {
@@ -33,9 +31,6 @@ export default async function AdminTeamsPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-      <AutoRefresh />
-      <h1 className="text-3xl font-bold text-white">Panel de Administración</h1>
-      <AdminNav />
       <TeamTable teams={teamData} />
     </div>
   );

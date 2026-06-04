@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -37,6 +38,7 @@ export function TeamForm({ team, onSuccess }: TeamFormProps) {
         setError(json?.error?.message ?? "Error al guardar el equipo.");
         return;
       }
+      toast.success(team ? "Equipo actualizado" : "Equipo creado");
       onSuccess();
     } catch {
       setError("Error de conexión.");

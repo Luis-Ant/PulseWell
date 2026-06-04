@@ -1,25 +1,9 @@
-import { getUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { USER_ROLE } from "@/lib/types";
-import { Building2, Users, ClipboardList, RefreshCw, AlertTriangle, ArrowRight, Shield } from "lucide-react";
+import { Building2, Users, ClipboardList, RefreshCw, AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { AdminNav } from "@/components/admin/AdminNav";
 import { ActionButton } from "@/components/admin/ActionButton";
-import { AutoRefresh } from "@/components/shared/AutoRefresh";
 
 export default async function AdminPage() {
-  const user = await getUser();
-
-  if (!user || user.role !== USER_ROLE.ADMIN) {
-    return (
-      <div className="flex flex-col items-center justify-center py-24">
-        <Shield className="size-12 text-slate-600" />
-        <h1 className="mt-6 text-2xl font-bold text-white">Acceso denegado</h1>
-        <p className="mt-2 text-slate-400">Este panel es exclusivo para administradores.</p>
-      </div>
-    );
-  }
-
   const [orgCount, teamCount, userCount, surveyCount, alertCount] = await Promise.all([
     prisma.organization.count(),
     prisma.team.count(),
@@ -38,7 +22,6 @@ export default async function AdminPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-      <AutoRefresh />
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white">Panel de Administración</h1>
@@ -46,9 +29,6 @@ export default async function AdminPage() {
           Gestioná tu organización, equipos, usuarios y encuestas.
         </p>
       </div>
-
-      {/* Admin Nav */}
-      <AdminNav />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">

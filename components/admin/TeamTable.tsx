@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { TeamForm } from "./TeamForm";
 import { ConfirmDialog } from "./ConfirmDialog";
 
@@ -20,15 +21,24 @@ export function TeamTable({ teams: initialTeams }: TeamTableProps) {
   const [teams, setTeams] = useState(initialTeams);
   const [editingTeam, setEditingTeam] = useState<{ id: string; name: string } | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   async function refresh() {
+    setRefreshing(true);
     const res = await fetch("/api/admin/teams");
     const json = await res.json();
     if (json.success) setTeams(json.data);
+    setRefreshing(false);
   }
 
   async function handleDelete(teamId: string) {
-    await fetch(`/api/admin/teams/${teamId}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/teams/${teamId}`, { method: "DELETE" });
+    const json = await res.json();
+    if (res.ok) {
+      toast.success("Equipo eliminado");
+    } else {
+      toast.error(json?.error?.message ?? "Error al eliminar");
+    }
     await refresh();
   }
 
@@ -103,7 +113,8 @@ export function TeamTable({ teams: initialTeams }: TeamTableProps) {
                         setEditingTeam({ id: team.id, name: team.name });
                         setShowForm(false);
                       }}
-                      className="text-xs text-slate-400 transition-colors hover:text-white"
+                      disabled={refreshing}
+                      className="text-xs text-slate-400 transition-colors hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Editar
                     </button>

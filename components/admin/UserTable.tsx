@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { UserForm } from "./UserForm";
 import { ConfirmDialog } from "./ConfirmDialog";
 
@@ -31,6 +32,7 @@ export function UserTable({ users: initialUsers }: { users: UserData[] }) {
   const [teams, setTeams] = useState<TeamOption[]>([]);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetch("/api/admin/teams")
@@ -41,13 +43,21 @@ export function UserTable({ users: initialUsers }: { users: UserData[] }) {
   }, []);
 
   async function refresh() {
+    setRefreshing(true);
     const res = await fetch("/api/admin/users");
     const json = await res.json();
     if (json.success) setUsers(json.data);
+    setRefreshing(false);
   }
 
   async function handleDelete(userId: string) {
-    await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/users/${userId}`, { method: "DELETE" });
+    const json = await res.json();
+    if (res.ok) {
+      toast.success("Usuario eliminado");
+    } else {
+      toast.error(json?.error?.message ?? "Error al eliminar");
+    }
     await refresh();
   }
 
@@ -121,7 +131,8 @@ export function UserTable({ users: initialUsers }: { users: UserData[] }) {
                   <div className="flex gap-1">
                     <button
                       onClick={() => setEditingUser(u)}
-                      className="text-xs text-slate-400 transition-colors hover:text-white"
+                      disabled={refreshing}
+                      className="text-xs text-slate-400 transition-colors hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Editar
                     </button>

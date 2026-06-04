@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -49,6 +50,7 @@ export function UserForm({ user, teams, onSuccess, onCancel }: UserFormProps) {
       if (!user && json.data?.tempPassword) {
         setTempPassword(json.data.tempPassword);
       }
+      toast.success(user ? "Usuario actualizado" : "Usuario creado");
       onSuccess();
     } catch {
       setError("Error de conexión.");

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface SurveyData {
   id: string;
@@ -22,6 +24,7 @@ export function SurveyManager({ surveys: initialSurveys }: SurveyManagerProps) {
   const [frequency, setFrequency] = useState("WEEKLY");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   async function refresh() {
     const res = await fetch("/api/admin/surveys");
@@ -44,16 +47,23 @@ export function SurveyManager({ surveys: initialSurveys }: SurveyManagerProps) {
     setName("");
     setShowForm(false);
     setLoading(false);
+    toast.success("Encuesta creada");
     await refresh();
   }
 
   async function toggleActive(surveyId: string, currentActive: boolean) {
-    await fetch(`/api/admin/surveys/${surveyId}`, {
+    setTogglingId(surveyId);
+    const newStatus = !currentActive;
+    const res = await fetch(`/api/admin/surveys/${surveyId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isActive: !currentActive }),
+      body: JSON.stringify({ isActive: newStatus }),
     });
+    if (res.ok) {
+      toast.success(`Encuesta ${newStatus ? "activada" : "desactivada"}`);
+    }
     await refresh();
+    setTogglingId(null);
   }
 
   return (
@@ -122,13 +132,18 @@ export function SurveyManager({ surveys: initialSurveys }: SurveyManagerProps) {
                 <td className="px-4 py-3">
                   <button
                     onClick={() => toggleActive(s.id, s.isActive)}
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors ${
+                    disabled={togglingId === s.id}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                       s.isActive
                         ? "bg-emerald-400/10 text-emerald-400 border border-emerald-400/20"
                         : "bg-slate-400/10 text-slate-500 border border-slate-400/20"
                     }`}
                   >
-                    <span className={`size-1.5 rounded-full ${s.isActive ? "bg-emerald-400" : "bg-slate-500"}`} />
+                    {togglingId === s.id ? (
+                      <Loader2 className="size-3 animate-spin" />
+                    ) : (
+                      <span className={`size-1.5 rounded-full ${s.isActive ? "bg-emerald-400" : "bg-slate-500"}`} />
+                    )}
                     {s.isActive ? "Activa" : "Inactiva"}
                   </button>
                 </td>
