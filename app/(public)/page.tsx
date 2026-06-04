@@ -163,8 +163,86 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ─── Why PulseWell Section ──────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-6 py-16">
+        <div className="mb-10 text-center">
+          <p className="font-display text-xs uppercase tracking-[0.3em] text-cyan-300">
+            Diferenciación
+          </p>
+          <h2 className="mt-3 font-heading text-3xl font-bold text-white md:text-4xl">
+            ¿Por qué PulseWell?
+          </h2>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-3">
+          {[
+            {
+              title: "Encuestas tradicionales",
+              description: "Datos sin procesar. Respuestas individuales visibles. Sin análisis automático. Requieren interpretación manual.",
+              icon: "📋",
+              vs: "vs",
+            },
+            {
+              title: "PulseWell",
+              description: "Análisis agregado automático. Privacidad por diseño. Alertas tempranas con recomendaciones accionables. Sin exponer datos individuales.",
+              icon: "🧠",
+              highlight: true,
+            },
+            {
+              title: "Consultoría tradicional",
+              description: "Cara, esporádica, basada en muestras. Resultados en semanas, no en tiempo real. Sin seguimiento continuo.",
+              icon: "💰",
+              vs: "vs",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className={`rounded-2xl border p-6 ${
+                item.highlight
+                  ? "border-cyan-800/40 bg-gradient-to-b from-cyan-950/30 to-slate-900 ring-1 ring-cyan-400/20"
+                  : "border-slate-800 bg-slate-900/50"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{item.icon}</span>
+                <h3 className={`text-sm font-bold ${item.highlight ? "text-cyan-300" : "text-slate-300"}`}>
+                  {item.title}
+                </h3>
+              </div>
+              <p className="mt-3 text-sm leading-relaxed text-slate-400">
+                {item.description}
+              </p>
+              {item.vs && (
+                <p className="mt-2 text-[10px] uppercase tracking-widest text-slate-600">{item.vs}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ─── Roadmap ─────────────────────────────────────── */}
       <RoadmapSection />
+
+      {/* ─── Pilot CTA ──────────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <div className="rounded-3xl border border-cyan-800/30 bg-gradient-to-r from-cyan-950/40 to-slate-900 p-10 text-center">
+          <h2 className="font-heading text-3xl font-bold text-white md:text-4xl">
+            ¿Querés probar PulseWell en tu empresa?
+          </h2>
+          <p className="mt-3 max-w-xl mx-auto text-slate-400">
+            Estamos buscando empresas para nuestro programa de piloto controlado.
+            Sin costo durante la fase de validación.
+          </p>
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Button asChild className="font-brand text-sm tracking-wide">
+              <Link href="/auth/login">Ver demo ahora</Link>
+            </Button>
+            <p className="text-xs text-slate-600">
+              Piloto Q3 2026 · Cupos limitados · Sin compromiso
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* ─── Footer ────────────────────────────────────────── */}
       <footer className="border-t border-slate-800 mt-16">

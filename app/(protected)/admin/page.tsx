@@ -3,8 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { USER_ROLE } from "@/lib/types";
 import { Building2, Users, ClipboardList, RefreshCw, AlertTriangle, ArrowRight, Shield } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { ActionButton } from "@/components/admin/ActionButton";
 import { AutoRefresh } from "@/components/shared/AutoRefresh";
 
 export default async function AdminPage() {
@@ -80,16 +80,8 @@ export default async function AdminPage() {
             Restablecé la base de datos con datos de demostración. Esto elimina todos los datos actuales.
           </p>
           <div className="mt-4 flex gap-3">
-            <form action="/api/demo/seed" method="POST">
-              <Button type="submit" variant="secondary" className="text-xs">
-                Regenerar seed
-              </Button>
-            </form>
-            <form action="/api/demo/reset" method="POST">
-              <Button type="submit" variant="secondary" className="text-xs">
-                Reset completo
-              </Button>
-            </form>
+            <ActionButton action="/api/demo/seed" label="Regenerar seed" />
+            <ActionButton action="/api/demo/reset" label="Reset completo" />
           </div>
         </div>
 
@@ -103,11 +95,7 @@ export default async function AdminPage() {
             Recalculá alertas y recomendaciones desde las métricas actuales de los equipos.
           </p>
           <div className="mt-4">
-            <form action="/api/alerts/regenerate" method="POST">
-              <Button type="submit" variant="secondary" className="text-xs">
-                Regenerar ahora
-              </Button>
-            </form>
+            <ActionButton action="/api/alerts/regenerate" label="Regenerar ahora" />
           </div>
         </div>
 

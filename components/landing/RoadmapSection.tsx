@@ -38,7 +38,7 @@ const PHASES = [
     description:
       "Fortalecimiento de confianza y alineación con el mercado mexicano.",
     features: [
-      "Módulo NOM-035",
+      "Módulo NOM-035 (STPS)",
       "Reporte de factores de riesgo",
       "Consentimiento explícito",
       "Auditoría de accesos",

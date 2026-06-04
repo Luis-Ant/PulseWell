@@ -58,6 +58,14 @@ export async function DELETE(
 
   const { id } = await params;
 
+  const team = await prisma.team.findUnique({ where: { id }, select: { name: true } });
+  if (!team) {
+    return NextResponse.json(
+      { success: false, error: { code: "NOT_FOUND", message: "Equipo no encontrado." } },
+      { status: 404 },
+    );
+  }
+
   const userCount = await prisma.user.count({ where: { teamId: id } });
   if (userCount > 0) {
     return NextResponse.json(
@@ -65,7 +73,7 @@ export async function DELETE(
         success: false,
         error: {
           code: "CONFLICT",
-          message: `No se puede eliminar el equipo porque tiene ${userCount} usuarios asignados.`,
+          message: `No se puede eliminar "${team.name}" porque tiene ${userCount} usuarios asignados. Reasigná los usuarios a otro equipo antes de eliminar.`,
         },
       },
       { status: 409 },

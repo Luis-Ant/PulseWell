@@ -2,6 +2,7 @@ import { getUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { USER_ROLE, RISK_LEVEL, type RiskLevel } from "@/lib/types";
 import { calculateProductivityHealth, calculateProjection } from "@/lib/analytics";
+import { formatPeriod } from "@/lib/format-utils";
 import { TrendingUp, AlertTriangle, ShieldCheck, Brain } from "lucide-react";
 
 import { MetricCard } from "@/components/dashboard/metric-card";
@@ -89,7 +90,23 @@ export default async function ManagerPage() {
     owi: latestScore.owi,
   });
 
-  // Active alerts (single team)
+  // ── Dimension averages (latest period) ────────────────────────────
+  const dimAverages = await prisma.surveyResult.aggregate({
+    where: { teamId, period: latestScore.period ?? "" },
+    _avg: { energy: true, belonging: true, clarity: true, stress: true, workload: true },
+  });
+
+  // ── Org average comparison ────────────────────────────────────────
+  const allScores = await prisma.wellbeingScore.findMany({
+    where: { period: latestScore.period ?? "" },
+    select: { owi: true },
+  });
+  const orgAvgOwi =
+    allScores.length > 0
+      ? Math.round(allScores.reduce((a, b) => a + b.owi, 0) / allScores.length)
+      : null;
+
+  // ── Active alerts (single team) ───────────────────────────────────
   const dbAlerts = await prisma.smartAlert.findMany({
     where: { teamId, isActive: true, resolvedAt: null },
     include: { team: { select: { name: true } } },
@@ -183,12 +200,19 @@ export default async function ManagerPage() {
 
       {/* Metrics row — 4 cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          icon={TrendingUp}
-          label="OWI del Equipo"
-          value={String(latestScore.owi)}
-          status={classifyOwi(latestScore.owi)}
-        />
+        <div>
+          <MetricCard
+            icon={TrendingUp}
+            label="OWI del Equipo"
+            value={String(latestScore.owi)}
+            status={classifyOwi(latestScore.owi)}
+          />
+          {orgAvgOwi !== null && (
+            <p className="mt-1 text-xs text-slate-500">
+              vs. {orgAvgOwi} promedio organizacional
+            </p>
+          )}
+        </div>
         <MetricCard
           icon={AlertTriangle}
           label="Alertas Activas"
@@ -208,7 +232,7 @@ export default async function ManagerPage() {
         <MetricCard
           icon={Brain}
           label="Período"
-          value={latestScore.period ?? "—"}
+          value={formatPeriod(latestScore.period ?? "")}
         />
       </div>
 
@@ -219,6 +243,35 @@ export default async function ManagerPage() {
           <RiskBadge level={latestScore.burnoutRisk as RiskLevel} label="Burnout" />
           <RiskBadge level={latestScore.attritionRisk as RiskLevel} label="Rotación" />
           <RiskBadge level={productivityHealth} label="Productividad" />
+        </div>
+      </div>
+
+      {/* Dimension Breakdown */}
+      <div className="rounded-2xl border border-slate-800 bg-slate-900 p-5">
+        <h3 className="mb-4 text-sm font-semibold text-slate-300">Desglose por dimensión</h3>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {(() => {
+            const dims = [
+              { label: "Energía", value: dimAverages._avg.energy ?? 0, max: 5, color: "bg-cyan-400" },
+              { label: "Pertenencia", value: dimAverages._avg.belonging ?? 0, max: 5, color: "bg-purple-400" },
+              { label: "Claridad", value: dimAverages._avg.clarity ?? 0, max: 5, color: "bg-blue-400" },
+              { label: "Estrés", value: dimAverages._avg.stress ?? 0, max: 5, color: "bg-orange-400" },
+              { label: "Carga", value: dimAverages._avg.workload ?? 0, max: 5, color: "bg-red-400" },
+            ];
+            return dims.map((dim) => (
+              <div key={dim.label} className="flex flex-col items-center gap-2">
+                <div className="h-2 w-full rounded-full bg-slate-800">
+                  <div
+                    className={`h-full rounded-full ${dim.color}`}
+                    style={{ width: `${(dim.value / dim.max) * 100}%` }}
+                  />
+                </div>
+                <span className="text-[10px] text-slate-500">
+                  {dim.label} ({dim.value.toFixed(1)})
+                </span>
+              </div>
+            ));
+          })()}
         </div>
       </div>
 

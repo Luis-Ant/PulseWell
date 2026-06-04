@@ -25,6 +25,11 @@ export function SurveyForm({ surveyName, questions, period, onSubmitted }: Surve
 
   const questionList = Object.values(questions);
 
+  const answeredCount = questionList.filter((q) => {
+    const val = scores[q.key];
+    return val !== undefined && val !== null;
+  }).length;
+
   function handleSelect(questionKey: string, value: number) {
     setScores((prev) => ({ ...prev, [questionKey]: value }));
     // Clear field error on change
@@ -89,6 +94,17 @@ export function SurveyForm({ surveyName, questions, period, onSubmitted }: Surve
         <p className="mt-2 text-sm text-slate-400">
           Período: {period}
         </p>
+
+        {/* Progress */}
+        <div className="mt-3 flex items-center gap-2">
+          <div className="h-1.5 flex-1 rounded-full bg-slate-800">
+            <div
+              className="h-full rounded-full bg-cyan-400 transition-all duration-300"
+              style={{ width: `${(answeredCount / 5) * 100}%` }}
+            />
+          </div>
+          <span className="text-xs text-slate-500">{answeredCount}/5</span>
+        </div>
       </div>
 
       {/* Questions */}

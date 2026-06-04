@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth/rbac";
 import { prisma } from "@/lib/prisma";
 import { USER_ROLE, type TeamMetrics } from "@/lib/types";
 import { calculateProductivityHealth, calculateProjection } from "@/lib/analytics";
+import { formatPeriod } from "@/lib/format-utils";
 import { AlertTriangle, Lightbulb, TrendingUp, Users } from "lucide-react";
 
 import { MetricCard } from "@/components/dashboard/metric-card";
@@ -53,13 +54,46 @@ export default async function HrPage() {
 
   const teamIds = teams.map((t: { id: string; name: string }) => t.id);
 
-  // ── Latest WellbeingScore per team ─────────────────────────────────
-  const latestScores = await prisma.wellbeingScore.findMany({
-    where: { teamId: { in: teamIds } },
-    orderBy: { period: "desc" },
-  });
+  // ── Parallel data fetch ────────────────────────────────────────────
+  const [latestScores, responseCounts, dbAlerts, dbRecs, distinctPeriods] =
+    await Promise.all([
+      prisma.wellbeingScore.findMany({
+        where: { teamId: { in: teamIds } },
+        orderBy: { period: "desc" },
+      }),
+      prisma.surveyResult.groupBy({
+        by: ["teamId"],
+        where: { teamId: { in: teamIds }, period: { not: null } },
+        _count: { id: true },
+      }),
+      prisma.smartAlert.findMany({
+        where: {
+          teamId: { in: teamIds },
+          isActive: true,
+          resolvedAt: null,
+        },
+        include: { team: { select: { name: true } } },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.recommendation.findMany({
+        where: { teamId: { in: teamIds } },
+        include: {
+          alert: { select: { type: true, message: true, severity: true } },
+          team: { select: { name: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        take: 20,
+      }),
+      prisma.wellbeingScore.findMany({
+        where: { teamId: { in: teamIds } },
+        select: { period: true },
+        distinct: ["period"],
+        orderBy: { period: "desc" },
+        take: 4,
+      }),
+    ]);
 
-  // Keep only the latest score per team
+  // ── Process latest scores per team ─────────────────────────────────
   const latestByTeam = new Map<
     string,
     {
@@ -81,12 +115,7 @@ export default async function HrPage() {
     }
   }
 
-  // ── Response counts per team ─────────────────────────────────────────
-  const responseCounts = await prisma.surveyResult.groupBy({
-    by: ["teamId"],
-    where: { teamId: { in: teamIds }, period: { not: null } },
-    _count: { id: true },
-  });
+  // ── Process response counts ───────────────────────────────────────
   const responseCountMap = new Map<string, number>();
   for (const rc of responseCounts) {
     responseCountMap.set(rc.teamId, rc._count.id);
@@ -134,21 +163,12 @@ export default async function HrPage() {
       attritionRisk: latest.attritionRisk as TeamMetrics["attritionRisk"],
       productivityHealth,
       responseCount: responseCountMap.get(team.id) ?? 0,
-      period: latest.period,
+      period: formatPeriod(latest.period),
       insufficientData: false,
     });
   }
 
-  // ── Active alerts ─────────────────────────────────────────────────
-  const dbAlerts = await prisma.smartAlert.findMany({
-    where: {
-      teamId: { in: teamIds },
-      isActive: true,
-      resolvedAt: null,
-    },
-    include: { team: { select: { name: true } } },
-    orderBy: { createdAt: "desc" },
-  });
+  // ── Process alerts ────────────────────────────────────────────────
 
   const severityOrder: Record<string, number> = {
     CRITICAL: 4,
@@ -176,17 +196,7 @@ export default async function HrPage() {
     isActive: a.isActive,
   }));
 
-  // ── Recommendations ───────────────────────────────────────────────
-  const dbRecs = await prisma.recommendation.findMany({
-    where: { teamId: { in: teamIds } },
-    include: {
-      alert: { select: { type: true, message: true, severity: true } },
-      team: { select: { name: true } },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-  });
-
+  // ── Process recommendations ───────────────────────────────────────
   const recommendations: RecommendationDto[] = dbRecs.map((r) => ({
     recommendationId: r.id,
     alertId: r.alertId,
@@ -199,15 +209,7 @@ export default async function HrPage() {
     createdAt: r.createdAt.toISOString(),
   }));
 
-  // ── Trend data (last 4 periods) ───────────────────────────────────
-  const distinctPeriods = await prisma.wellbeingScore.findMany({
-    where: { teamId: { in: teamIds } },
-    select: { period: true },
-    distinct: ["period"],
-    orderBy: { period: "desc" },
-    take: 4,
-  });
-
+  // ── Process trend periods ─────────────────────────────────────────
   const last4Periods = distinctPeriods
     .map((p) => p.period)
     .filter((p): p is string => p !== null)

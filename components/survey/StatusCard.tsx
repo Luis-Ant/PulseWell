@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Clock, ArrowRight, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { formatPeriod } from "@/lib/format-utils";
 
 interface StatusCardProps {
   alreadySubmitted: boolean;
@@ -23,7 +24,7 @@ export function StatusCard({ alreadySubmitted, streak, period, onStartSurvey, te
       <div className="flex items-start justify-between">
         <div>
           <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-            Esta semana · {period}
+            Esta semana · {formatPeriod(period)}
           </p>
           <h2 className="mt-2 text-2xl font-bold text-white">
             {alreadySubmitted ? "¡Ya respondiste!" : "Encuesta pendiente"}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { PrivacyBanner } from "@/components/shared/PrivacyBanner";
+import { formatPeriod } from "@/lib/format-utils";
 
 // ── Types ──────────────────────────────────────────────────────────────
 interface ConfirmationViewProps {
@@ -20,7 +21,7 @@ export function ConfirmationView({ period }: ConfirmationViewProps) {
 
         <p className="mt-3 text-slate-400">
           Tu respuesta fue registrada para el período{" "}
-          <span className="font-semibold text-slate-200">{period}</span>.
+          <span className="font-semibold text-slate-200">{formatPeriod(period)}</span>.
         </p>
 
         <p className="mt-8 max-w-md text-sm leading-relaxed text-slate-500">

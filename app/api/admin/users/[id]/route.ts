@@ -117,5 +117,22 @@ export async function DELETE(
   }
 
   await prisma.user.delete({ where: { id } });
+
+  // Also delete from Supabase Auth
+  if (targetUser.supabaseUid) {
+    try {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+      const supabaseSecret = process.env.SUPABASE_SECRET_KEY!;
+      const { createClient } = await import("@supabase/supabase-js");
+      const supabaseAdmin = createClient(supabaseUrl, supabaseSecret, {
+        auth: { autoRefreshToken: false, persistSession: false },
+      });
+      await supabaseAdmin.auth.admin.deleteUser(targetUser.supabaseUid);
+    } catch (err) {
+      console.error("Failed to delete Supabase auth user:", err);
+      // Don't fail the request — Prisma user is already deleted
+    }
+  }
+
   return NextResponse.json({ success: true, data: { deleted: true } });
 }
