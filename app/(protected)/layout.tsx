@@ -2,9 +2,7 @@ import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentPeriod } from "@/lib/survey-utils";
-import { signOut } from "@/lib/auth/actions";
-import { Button } from "@/components/ui/button";
-import { Bell, LogOut } from "lucide-react";
+import { UserMenu } from "@/components/layout/UserMenu";
 import type { ReactNode } from "react";
 
 interface ProtectedLayoutProps {
@@ -60,23 +58,11 @@ export default async function ProtectedLayout({
           </div>
 
           <div className="flex items-center gap-4">
-            {hasPendingSurvey && (
-              <div className="relative">
-                <Bell className="size-5 text-cyan-400" />
-                <span className="absolute -right-1 -top-1 size-2.5 rounded-full bg-red-500 ring-2 ring-slate-950" />
-              </div>
-            )}
-            <span className="text-sm text-slate-400">{user.name}</span>
-            <form action={signOut}>
-              <Button
-                type="submit"
-                variant="secondary"
-                className="px-3 py-1.5 text-xs"
-              >
-                <LogOut className="mr-1.5 h-3.5 w-3.5" />
-                Cerrar sesión
-              </Button>
-            </form>
+            <UserMenu
+              userName={user.name}
+              userRole={user.role}
+              hasPendingSurvey={hasPendingSurvey}
+            />
           </div>
         </div>
       </header>
