@@ -81,6 +81,17 @@ export default async function HrPage() {
     }
   }
 
+  // ── Response counts per team ─────────────────────────────────────────
+  const responseCounts = await prisma.surveyResult.groupBy({
+    by: ["teamId"],
+    where: { teamId: { in: teamIds }, period: { not: null } },
+    _count: { id: true },
+  });
+  const responseCountMap = new Map<string, number>();
+  for (const rc of responseCounts) {
+    responseCountMap.set(rc.teamId, rc._count.id);
+  }
+
   // ── Build TeamMetrics[] ───────────────────────────────────────────
   const teamMetricsList: TeamMetrics[] = [];
   const teamOwis: number[] = [];
@@ -96,7 +107,7 @@ export default async function HrPage() {
         burnoutRisk: "LOW",
         attritionRisk: "LOW",
         productivityHealth: "LOW",
-        responseCount: 0,
+        responseCount: responseCountMap.get(team.id) ?? 0,
         period: "",
         insufficientData: true,
       });
@@ -122,7 +133,7 @@ export default async function HrPage() {
       burnoutRisk: latest.burnoutRisk as TeamMetrics["burnoutRisk"],
       attritionRisk: latest.attritionRisk as TeamMetrics["attritionRisk"],
       productivityHealth,
-      responseCount: 0, // Will be populated if we had count data
+      responseCount: responseCountMap.get(team.id) ?? 0,
       period: latest.period,
       insufficientData: false,
     });

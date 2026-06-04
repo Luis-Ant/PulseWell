@@ -1,4 +1,5 @@
-import { CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { PrivacyBanner } from "@/components/shared/PrivacyBanner";
 
 // ── Types ──────────────────────────────────────────────────────────────
@@ -30,6 +31,14 @@ export function ConfirmationView({ period }: ConfirmationViewProps) {
         <div className="mt-8 w-full max-w-md">
           <PrivacyBanner />
         </div>
+
+        <Link
+          href="/survey"
+          className="mt-8 inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+        >
+          <ArrowLeft className="size-4" />
+          Ver mi panel
+        </Link>
       </div>
     </div>
   );
