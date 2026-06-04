@@ -34,36 +34,48 @@ function getRecentWeeks(count: number = 4): string[] {
   return weeks;
 }
 
-const WEEKS = getRecentWeeks(4);
+const WEEKS = getRecentWeeks(8);
 
 const TEAMS = [
   { name: "Engineering", slug: "eng" },
   { name: "Sales", slug: "sales" },
   { name: "Operations", slug: "ops" },
   { name: "Customer Success", slug: "cs" },
+  { name: "Marketing", slug: "mkt" },
+  { name: "Finance", slug: "fin" },
 ] as const;
 
 // ─── Team narrative trends (OWI per week) ─────────────────────────────────────
 const TEAM_TRENDS: Record<string, { owi: number[]; burnout: RiskLevel[]; attrition: RiskLevel[] }> = {
   Engineering: {
-    owi: [65, 52, 41, 33],
-    burnout: ["HIGH", "HIGH", "HIGH", "HIGH"],
-    attrition: ["LOW", "MEDIUM", "MEDIUM", "HIGH"],
+    owi: [65, 52, 41, 33, 28, 24, 22, 20],
+    burnout: ["HIGH", "HIGH", "HIGH", "HIGH", "HIGH", "CRITICAL", "CRITICAL", "CRITICAL"],
+    attrition: ["LOW", "MEDIUM", "MEDIUM", "HIGH", "HIGH", "HIGH", "CRITICAL", "CRITICAL"],
   },
   Sales: {
-    owi: [58, 55, 50, 47],
-    burnout: ["LOW", "LOW", "MEDIUM", "MEDIUM"],
-    attrition: ["LOW", "MEDIUM", "MEDIUM", "MEDIUM"],
+    owi: [58, 55, 50, 47, 47, 45, 44, 42],
+    burnout: ["LOW", "LOW", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM", "HIGH", "HIGH"],
+    attrition: ["LOW", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM", "HIGH", "HIGH"],
   },
   Operations: {
-    owi: [72, 74, 71, 73],
-    burnout: ["LOW", "LOW", "LOW", "LOW"],
-    attrition: ["LOW", "LOW", "LOW", "LOW"],
+    owi: [72, 74, 71, 73, 74, 72, 75, 73],
+    burnout: ["LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW"],
+    attrition: ["LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW"],
   },
   "Customer Success": {
-    owi: [45, 52, 60, 68],
-    burnout: ["HIGH", "MEDIUM", "MEDIUM", "LOW"],
-    attrition: ["MEDIUM", "LOW", "LOW", "LOW"],
+    owi: [45, 52, 60, 68, 72, 75, 78, 80],
+    burnout: ["HIGH", "MEDIUM", "MEDIUM", "LOW", "LOW", "LOW", "LOW", "LOW"],
+    attrition: ["MEDIUM", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW"],
+  },
+  Marketing: {
+    owi: [68, 70, 65, 58, 55, 60, 63, 61],
+    burnout: ["LOW", "LOW", "LOW", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM"],
+    attrition: ["LOW", "LOW", "LOW", "LOW", "MEDIUM", "LOW", "LOW", "LOW"],
+  },
+  Finance: {
+    owi: [78, 76, 80, 79, 75, 72, 70, 68],
+    burnout: ["LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "MEDIUM", "MEDIUM"],
+    attrition: ["LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW"],
   },
 };
 
@@ -95,9 +107,8 @@ function buildUsers(): UserDef[] {
       teamSlug: slug,
     });
 
-    // Employees per team — 4 per team for 5 total users each (1 manager + 4 employees)
-    // This ensures every team meets the privacy guard threshold of 5 responses
-    const employeeCount = 4;
+    // Employees per team
+    const employeeCount = slug === "eng" || slug === "sales" ? 6 : slug === "mkt" || slug === "fin" ? 5 : 4;
     for (let i = 1; i <= employeeCount; i++) {
       users.push({
         email: `employee${i}-${slug}@pulsewell.demo`,
@@ -555,16 +566,12 @@ async function main() {
   console.log(`  💚 Wellbeing:       ${result.wellbeingCount}`);
   console.log(`  🚨 Smart Alerts:    ${result.alertCount}`);
   console.log(`  💡 Recommendations: ${result.recommendationCount}`);
-  console.log("\n📧 Demo credentials:");
-  console.log("  admin@pulsewell.demo      / Demo1234!  (ADMIN)");
-  console.log("  hr@pulsewell.demo         / Demo1234!  (HR_ANALYST)");
-  console.log(
-    "  manager-eng@pulsewell.demo / Demo1234!  (MANAGER — Engineering)",
-  );
-  console.log(
-    "  employee1-eng@pulsewell.demo / Demo1234! (EMPLOYEE — Engineering)",
-  );
-  console.log("  ... (see scripts/seed.ts for full list)");
+  console.log("\n📧 Demo credentials (sample):");
+  console.log("  admin@pulsewell.demo        / Demo1234!  (ADMIN)");
+  console.log("  hr@pulsewell.demo           / Demo1234!  (HR_ANALYST)");
+  console.log("  manager-eng@pulsewell.demo  / Demo1234!  (MANAGER — Engineering)");
+  console.log("  manager-mkt@pulsewell.demo  / Demo1234!  (MANAGER — Marketing)");
+  console.log("  ... (38 users total — see scripts/seed.ts for full list)");
 }
 
 // Only execute main() when this file is the ENTRY POINT (bun scripts/seed.ts),

@@ -4,6 +4,7 @@ interface UserAvatarProps {
   name: string;
   role: string;
   size?: "sm" | "md" | "lg";
+  imageUrl?: string | null;
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -29,7 +30,7 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-export function UserAvatar({ name, role, size = "md" }: UserAvatarProps) {
+export function UserAvatar({ name, role, size = "md", imageUrl }: UserAvatarProps) {
   return (
     <div
       className={cn(
@@ -39,7 +40,15 @@ export function UserAvatar({ name, role, size = "md" }: UserAvatarProps) {
       )}
       title={name}
     >
-      {getInitials(name)}
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt={name}
+          className="size-full rounded-full object-cover"
+        />
+      ) : (
+        getInitials(name)
+      )}
     </div>
   );
 }

@@ -43,6 +43,9 @@ export default async function ProtectedLayout({
     hasPendingSurvey = !existingResponse;
   }
 
+  // ── Avatar URL ──────────────────────────────────────────────────
+  const avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name)}&backgroundColor=1e293b&textColor=94a3b8`;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       {/* Top nav bar */}
@@ -62,6 +65,7 @@ export default async function ProtectedLayout({
               userName={user.name}
               userRole={user.role}
               hasPendingSurvey={hasPendingSurvey}
+              userImage={avatarUrl}
             />
           </div>
         </div>

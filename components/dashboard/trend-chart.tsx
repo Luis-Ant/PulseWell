@@ -25,6 +25,8 @@ const TEAM_COLORS: Record<string, string> = {
   Sales: "#f59e0b", // amber-500
   Operations: "#22c55e", // green-500
   "Customer Success": "#3b82f6", // blue-500
+  Marketing: "#a855f7", // purple-500
+  Finance: "#06b6d4", // cyan-500
 };
 
 const FALLBACK_COLORS = [
