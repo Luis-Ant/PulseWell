@@ -34,3 +34,26 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   return NextResponse.json({ success: true, data: updated });
 }
+
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getUser();
+  if (!user || user.role !== USER_ROLE.ADMIN) {
+    return NextResponse.json(
+      { success: false, error: { code: "FORBIDDEN", message: "Admin access required." } },
+      { status: 403 }
+    );
+  }
+
+  const { id } = await params;
+  const survey = await prisma.survey.findUnique({ where: { id } });
+  if (!survey) {
+    return NextResponse.json(
+      { success: false, error: { code: "NOT_FOUND", message: "Encuesta no encontrada." } },
+      { status: 404 }
+    );
+  }
+
+  await prisma.surveyResult.deleteMany({ where: { surveyId: id } });
+  await prisma.survey.delete({ where: { id } });
+  return NextResponse.json({ success: true, data: { deleted: true } });
+}

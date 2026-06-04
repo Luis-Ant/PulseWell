@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -15,6 +16,7 @@ type ActionStatus = "idle" | "loading" | "success" | "error";
 export function ActionButton({ action, label, variant = "secondary" }: ActionButtonProps) {
   const [status, setStatus] = useState<ActionStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const router = useRouter();
 
   async function handleClick() {
     setStatus("loading");
@@ -26,7 +28,7 @@ export function ActionButton({ action, label, variant = "secondary" }: ActionBut
         throw new Error(json?.error?.message || "Error del servidor");
       }
       setStatus("success");
-      setTimeout(() => window.location.reload(), 1500);
+      router.refresh();
     } catch (err) {
       setStatus("error");
       setErrorMessage(err instanceof Error ? err.message : "Error de conexión");
@@ -45,9 +47,9 @@ export function ActionButton({ action, label, variant = "secondary" }: ActionBut
         {status === "loading"
           ? "Procesando..."
           : status === "success"
-            ? "✅ Completado"
+            ? "Completado"
             : status === "error"
-              ? "❌ Error"
+              ? "Error"
               : label}
       </Button>
       {errorMessage && (

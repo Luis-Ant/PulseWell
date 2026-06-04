@@ -2,14 +2,20 @@ import { prisma } from "@/lib/prisma";
 import { Building2, Users, ClipboardList, RefreshCw, AlertTriangle, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { ActionButton } from "@/components/admin/ActionButton";
+import { TrendChart } from "@/components/dashboard/trend-chart";
 
 export default async function AdminPage() {
-  const [orgCount, teamCount, userCount, surveyCount, alertCount] = await Promise.all([
+  const [orgCount, teamCount, userCount, surveyCount, alertCount, trendScores] = await Promise.all([
     prisma.organization.count(),
     prisma.team.count(),
     prisma.user.count(),
     prisma.survey.count(),
     prisma.smartAlert.count({ where: { isActive: true } }),
+    prisma.wellbeingScore.findMany({
+      orderBy: { period: "asc" },
+      take: 16,
+      include: { team: { select: { name: true } } },
+    }),
   ]);
 
   const stats = [
@@ -19,6 +25,16 @@ export default async function AdminPage() {
     { icon: ClipboardList, label: "Encuestas", value: String(surveyCount) },
     { icon: AlertTriangle, label: "Alertas activas", value: String(alertCount) },
   ];
+
+  // Build OWI trend data
+  const periods = [...new Set(trendScores.map((s) => s.period!))].sort();
+  const trendData = periods.map((period) => {
+    const point: { period: string;[key: string]: string | number } = { period };
+    for (const s of trendScores.filter((s) => s.period === period)) {
+      point[s.team.name] = s.owi;
+    }
+    return point;
+  });
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
@@ -107,6 +123,12 @@ export default async function AdminPage() {
           </div>
         </div>
       </div>
+
+      {/* OWI Trend Chart */}
+      <section className="mt-8">
+        <h2 className="mb-4 text-lg font-semibold text-white">Tendencia de OWI</h2>
+        <TrendChart data={trendData} />
+      </section>
 
       {/* Info */}
       <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-4 text-center">

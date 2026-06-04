@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 interface SurveyData {
   id: string;
@@ -154,7 +155,22 @@ export function SurveyManager({ surveys: initialSurveys }: SurveyManagerProps) {
                 <td className="px-4 py-3 text-slate-500 text-xs">
                   {new Date(s.createdAt).toLocaleDateString("es-AR")}
                 </td>
-                <td className="px-4 py-3" />
+                <td className="px-4 py-3">
+                  <ConfirmDialog
+                    title="Eliminar encuesta"
+                    message={`¿Estás seguro de eliminar "${s.name}"? Se eliminarán todas las respuestas asociadas.`}
+                    onConfirm={async () => {
+                      const res = await fetch(`/api/admin/surveys/${s.id}`, { method: "DELETE" });
+                      if (res.ok) {
+                        toast.success("Encuesta eliminada");
+                        await refresh();
+                      } else {
+                        const json = await res.json();
+                        toast.error(json?.error?.message ?? "Error al eliminar");
+                      }
+                    }}
+                  />
+                </td>
               </tr>
             ))}
             {surveys.length === 0 && (
