@@ -1,5 +1,5 @@
 // ─── Idempotent Seed Script ──────────────────────────────────────────────────
-// Creates demo data for PulseWell: 1 org, 4 teams, 20 users, narrative trends.
+// Creates demo data for PulseWell: 1 org, 6 teams, 38 users, 24-week narrative.
 // Safe to run multiple times — uses upsert for all entities.
 // ────────────────────────────────────────────────────────────────────────────────
 
@@ -34,7 +34,7 @@ function getRecentWeeks(count: number = 4): string[] {
   return weeks;
 }
 
-const WEEKS = getRecentWeeks(8);
+const WEEKS = getRecentWeeks(24);
 
 const TEAMS = [
   { name: "Engineering", slug: "eng" },
@@ -45,39 +45,101 @@ const TEAMS = [
   { name: "Finance", slug: "fin" },
 ] as const;
 
-// ─── Team narrative trends (OWI per week) ─────────────────────────────────────
-const TEAM_TRENDS: Record<string, { owi: number[]; burnout: RiskLevel[]; attrition: RiskLevel[] }> = {
-  Engineering: {
-    owi: [65, 52, 41, 33, 28, 24, 22, 20],
-    burnout: ["HIGH", "HIGH", "HIGH", "HIGH", "HIGH", "CRITICAL", "CRITICAL", "CRITICAL"],
-    attrition: ["LOW", "MEDIUM", "MEDIUM", "HIGH", "HIGH", "HIGH", "CRITICAL", "CRITICAL"],
-  },
-  Sales: {
-    owi: [58, 55, 50, 47, 47, 45, 44, 42],
-    burnout: ["LOW", "LOW", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM", "HIGH", "HIGH"],
-    attrition: ["LOW", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM", "HIGH", "HIGH"],
-  },
-  Operations: {
-    owi: [72, 74, 71, 73, 74, 72, 75, 73],
-    burnout: ["LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW"],
-    attrition: ["LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW"],
-  },
-  "Customer Success": {
-    owi: [45, 52, 60, 68, 72, 75, 78, 80],
-    burnout: ["HIGH", "MEDIUM", "MEDIUM", "LOW", "LOW", "LOW", "LOW", "LOW"],
-    attrition: ["MEDIUM", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW"],
-  },
-  Marketing: {
-    owi: [68, 70, 65, 58, 55, 60, 63, 61],
-    burnout: ["LOW", "LOW", "LOW", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM", "MEDIUM"],
-    attrition: ["LOW", "LOW", "LOW", "LOW", "MEDIUM", "LOW", "LOW", "LOW"],
-  },
-  Finance: {
-    owi: [78, 76, 80, 79, 75, 72, 70, 68],
-    burnout: ["LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "MEDIUM", "MEDIUM"],
-    attrition: ["LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW", "LOW"],
-  },
-};
+// ─── Team narrative trends (OWI per week, 24 weeks) ──────────────────────────
+// Generated programmatically for richer, more realistic patterns.
+function classifyOwi(owi: number): RiskLevel {
+  if (owi >= 70) return "LOW";
+  if (owi >= 50) return "MEDIUM";
+  if (owi >= 30) return "HIGH";
+  return "CRITICAL";
+}
+
+function classifyAttrition(owi: number, week: number): RiskLevel {
+  // Attrition risk follows OWI with some delay
+  if (owi < 35) return week > 12 ? "CRITICAL" : "HIGH";
+  if (owi < 50) return "MEDIUM";
+  return "LOW";
+}
+
+function generateTeamTrends(): Record<string, { owi: number[]; burnout: RiskLevel[]; attrition: RiskLevel[] }> {
+  const totalWeeks = WEEKS.length;
+
+  // Engineering: Steady decline 78 → 12 over 24 weeks (burnout crisis)
+  const engOwi: number[] = [];
+  for (let w = 0; w < totalWeeks; w++) {
+    const base = 80 - (w * 3); // Declines ~3 points per week
+    const noise = Math.round((Math.random() - 0.5) * 4); // ±2 random
+    engOwi.push(Math.max(8, Math.min(82, base + noise)));
+  }
+
+  // Sales: Gradual decline 70 → 35 with small recoveries
+  const salesOwi: number[] = [];
+  for (let w = 0; w < totalWeeks; w++) {
+    const base = 72 - (w * 1.6);
+    // Every 6 weeks, small recovery bump
+    const recovery = (w % 6 === 0 && w > 0) ? 4 : 0;
+    const noise = Math.round((Math.random() - 0.5) * 5);
+    salesOwi.push(Math.max(30, Math.min(75, base + recovery + noise)));
+  }
+
+  // Operations: Very stable 68-78 (the healthy baseline)
+  const opsOwi: number[] = [];
+  for (let w = 0; w < totalWeeks; w++) {
+    const base = 73;
+    const seasonal = Math.sin(w * 0.3) * 3; // Gentle seasonal pattern
+    const noise = Math.round((Math.random() - 0.5) * 3);
+    opsOwi.push(Math.max(65, Math.min(80, base + seasonal + noise)));
+  }
+
+  // Customer Success: Crisis → recovery 25 → 82
+  const csOwi: number[] = [];
+  for (let w = 0; w < totalWeeks; w++) {
+    let base: number;
+    if (w < 4) base = 35 - w * 3;       // Weeks 1-4: Crisis (35→23)
+    else if (w < 8) base = 25 + (w - 4) * 5;  // Weeks 5-8: Intervention starts
+    else if (w < 16) base = 45 + (w - 8) * 2.5; // Weeks 9-16: Steady recovery
+    else base = 65 + (w - 16) * 1.5;    // Weeks 17-24: Stabilizing
+    const noise = Math.round((Math.random() - 0.5) * 4);
+    csOwi.push(Math.max(20, Math.min(85, base + noise)));
+  }
+
+  // Marketing: Cyclical 55-75 (seasonal patterns)
+  const mktOwi: number[] = [];
+  for (let w = 0; w < totalWeeks; w++) {
+    const base = 62;
+    const cycle1 = Math.sin(w * 0.5) * 8;  // Slow cycle
+    const cycle2 = Math.sin(w * 0.15) * 5; // Very slow trend
+    const noise = Math.round((Math.random() - 0.5) * 4);
+    mktOwi.push(Math.max(50, Math.min(78, base + cycle1 + cycle2 + noise)));
+  }
+
+  // Finance: Excellent but slowly declining 85 → 65
+  const finOwi: number[] = [];
+  for (let w = 0; w < totalWeeks; w++) {
+    const base = 84 - (w * 0.9);
+    const noise = Math.round((Math.random() - 0.5) * 4);
+    finOwi.push(Math.max(60, Math.min(88, base + noise)));
+  }
+
+  return {
+    Engineering: buildTrend(engOwi),
+    Sales: buildTrend(salesOwi),
+    Operations: buildTrend(opsOwi),
+    "Customer Success": buildTrend(csOwi),
+    Marketing: buildTrend(mktOwi),
+    Finance: buildTrend(finOwi),
+  };
+}
+
+function buildTrend(owi: number[]): { owi: number[]; burnout: RiskLevel[]; attrition: RiskLevel[] } {
+  return {
+    owi,
+    burnout: owi.map((o) => classifyOwi(o)),
+    attrition: owi.map((o, w) => classifyAttrition(o, w)),
+  };
+}
+
+const TEAM_TRENDS = generateTeamTrends();
 
 // ─── User definitions ─────────────────────────────────────────────────────────
 interface UserDef {
