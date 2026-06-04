@@ -43,12 +43,14 @@ export function AlertCard({ alert }: AlertCardProps) {
   const [expanded, setExpanded] = useState(false);
   const typeLabel = TYPE_LABELS[alert.type] ?? alert.type;
   const severityLabel = SEVERITY_LABELS[alert.severity] ?? alert.severity;
+  const isCritical = alert.severity === "CRITICAL";
 
   return (
     <article
       className={cn(
         "rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg shadow-slate-950/50 border-l-4",
         SEVERITY_STYLES[alert.severity] ?? "border-l-slate-500",
+        isCritical && "animate-pulse",
       )}
     >
       <div className="flex items-start justify-between gap-3">
@@ -56,7 +58,7 @@ export function AlertCard({ alert }: AlertCardProps) {
           <AlertTriangle
             className={cn(
               "size-4",
-              alert.severity === "CRITICAL" && "text-red-400",
+              isCritical && "text-red-400 animate-pulse",
               alert.severity === "HIGH" && "text-orange-400",
               alert.severity === "MEDIUM" && "text-amber-400",
               alert.severity === "LOW" && "text-slate-400",
@@ -102,13 +104,18 @@ export function AlertCard({ alert }: AlertCardProps) {
             )}
           </button>
 
-          {expanded && (
-            <div className="mt-2 rounded-lg border border-slate-700 bg-slate-800/50 p-3">
+          <div
+            className={cn(
+              "grid transition-all duration-300 ease-in-out",
+              expanded ? "grid-rows-[1fr] opacity-100 mt-2" : "grid-rows-[0fr] opacity-0",
+            )}
+          >
+            <div className="overflow-hidden rounded-lg border border-slate-700 bg-slate-800/50 p-3">
               <p className="text-xs leading-relaxed text-slate-400">
                 {alert.description}
               </p>
             </div>
-          )}
+          </div>
         </>
       )}
 

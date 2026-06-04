@@ -1,4 +1,4 @@
-import { Lightbulb } from "lucide-react";
+import { Lightbulb, Briefcase, Heart, Target, TrendingDown, UserMinus, BrainCircuit, BatteryWarning } from "lucide-react";
 import type { RecommendationDto } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -11,18 +11,40 @@ const TYPE_LABELS: Record<string, string> = {
   PREDICTIVE: "Predictivo",
 };
 
+const TYPE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  BURNOUT: BatteryWarning,
+  ATTRITION: UserMinus,
+  WELLBEING: Heart,
+  TREND: TrendingDown,
+  PRODUCTIVITY: Briefcase,
+  PREDICTIVE: BrainCircuit,
+};
+
+// Semantic fallback map for categories that don't match AlertType enum directly
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  workload: Briefcase,
+  recognition: Heart,
+  clarity: Target,
+  energy: BatteryWarning,
+  belonging: Heart,
+  stress: TrendingDown,
+  ...TYPE_ICONS,
+};
+
 interface RecommendationCardProps {
   recommendation: RecommendationDto;
 }
 
 export function RecommendationCard({ recommendation }: RecommendationCardProps) {
   const typeLabel = TYPE_LABELS[recommendation.type] ?? recommendation.type;
+  const lowerType = recommendation.type.toLowerCase();
+  const CategoryIcon = CATEGORY_ICONS[recommendation.type] ?? CATEGORY_ICONS[lowerType] ?? Lightbulb;
 
   return (
     <article className="rounded-2xl border border-slate-800 bg-slate-900 p-5 shadow-lg shadow-slate-950/50">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Lightbulb className="size-4 text-yellow-400" />
+          <CategoryIcon className="size-4 text-yellow-400" />
           <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
             {typeLabel}
           </span>

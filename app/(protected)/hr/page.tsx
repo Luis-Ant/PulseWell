@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { USER_ROLE, type TeamMetrics } from "@/lib/types";
 import { calculateProductivityHealth, calculateProjection } from "@/lib/analytics";
 import { formatPeriod } from "@/lib/format-utils";
-import { AlertTriangle, Lightbulb, TrendingUp, Users, BarChart3 } from "lucide-react";
+import { AlertTriangle, Lightbulb, TrendingUp, Users, BarChart3, Shield } from "lucide-react";
 
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { TeamGrid } from "@/components/dashboard/team-grid";
@@ -267,6 +267,9 @@ export default async function HrPage() {
           muestran únicamente cuando hay suficientes respuestas para preservar
           la privacidad individual.
         </p>
+        <p className="mt-1 text-xs text-slate-600">
+          Datos actualizados cada 30 segundos
+        </p>
       </div>
 
       {/* ── Executive Summary / Insights ────────────────────────── */}
@@ -309,20 +312,25 @@ export default async function HrPage() {
 
       {/* ── Global Metrics Row ──────────────────────────────────── */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          icon={TrendingUp}
-          label="OWI Global"
-          value={String(globalOwi)}
-          status={
-            globalOwi >= 70
-              ? "LOW"
-              : globalOwi >= 50
-                ? "MEDIUM"
-                : globalOwi >= 30
-                  ? "HIGH"
-                  : "CRITICAL"
-          }
-        />
+        <div>
+          <MetricCard
+            icon={TrendingUp}
+            label="OWI Global"
+            value={String(globalOwi)}
+            status={
+              globalOwi >= 70
+                ? "LOW"
+                : globalOwi >= 50
+                  ? "MEDIUM"
+                  : globalOwi >= 30
+                    ? "HIGH"
+                    : "CRITICAL"
+            }
+          />
+          <p className="mt-1 text-center text-[11px] text-slate-500">
+            {globalOwi >= 70 ? "Saludable" : globalOwi >= 50 ? "Atención" : globalOwi >= 30 ? "Riesgo" : "Crítico"}
+          </p>
+        </div>
 
         <MetricCard
           icon={Users}
@@ -395,6 +403,7 @@ export default async function HrPage() {
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-emerald-800/50 bg-emerald-950/20 p-8 text-center">
+            <Shield className="mx-auto mb-3 size-6 text-emerald-500/60" />
             <p className="text-sm font-medium text-emerald-300">No hay alertas activas</p>
             <p className="mt-1 text-xs text-emerald-400/60">
               Todos los equipos se encuentran dentro de rangos saludables.

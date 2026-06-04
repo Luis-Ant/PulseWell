@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { USER_ROLE, RISK_LEVEL, type RiskLevel } from "@/lib/types";
 import { calculateProductivityHealth, calculateProjection } from "@/lib/analytics";
 import { formatPeriod } from "@/lib/format-utils";
-import { TrendingUp, AlertTriangle, ShieldCheck, Brain } from "lucide-react";
+import { TrendingUp, AlertTriangle, ShieldCheck, Brain, Users, MessageSquare } from "lucide-react";
 
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { RiskBadge } from "@/components/dashboard/risk-badge";
@@ -46,7 +46,7 @@ export default async function ManagerPage() {
 
   const team = await prisma.team.findUnique({
     where: { id: teamId },
-    select: { id: true, name: true },
+    select: { id: true, name: true, _count: { select: { users: true } } },
   });
 
   if (!team) {
@@ -79,6 +79,13 @@ export default async function ManagerPage() {
       </div>
     );
   }
+
+  // ── Team context ──────────────────────────────────────────────────
+  const memberCount = team._count.users;
+
+  const responseCount = await prisma.surveyResult.count({
+    where: { teamId, period: latestScore.period ?? "" },
+  });
 
   // Compute productivity health from OWI
   const productivityHealth = calculateProductivityHealth({
@@ -198,7 +205,34 @@ export default async function ManagerPage() {
           <span className="text-slate-500">{formatPeriod(latestScore.period ?? "")}</span>.
           Los datos se muestran de forma agregada para preservar la privacidad individual.
         </p>
+        <p className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-600">
+          <span className="inline-flex items-center gap-1">
+            <Users className="size-3" /> {memberCount} miembro{memberCount !== 1 ? "s" : ""}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <MessageSquare className="size-3" /> {responseCount} respuesta{responseCount !== 1 ? "s" : ""}
+          </span>
+        </p>
       </div>
+
+      {/* ── Intervention Banner ─────────────────────────────────── */}
+      {(latestScore.burnoutRisk === "HIGH" || latestScore.burnoutRisk === "CRITICAL" ||
+        latestScore.attritionRisk === "HIGH" || latestScore.attritionRisk === "CRITICAL") && (
+        <div className="rounded-2xl border border-red-800/40 bg-red-950/20 p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="mt-0.5 size-5 shrink-0 text-red-400" />
+            <div>
+              <p className="text-sm font-semibold text-red-300">Tu equipo necesita atención</p>
+              <p className="mt-1 text-xs leading-relaxed text-red-400/70">
+                Se detectaron {[
+                  latestScore.burnoutRisk === "HIGH" || latestScore.burnoutRisk === "CRITICAL" ? "riesgo de burnout" : null,
+                  latestScore.attritionRisk === "HIGH" || latestScore.attritionRisk === "CRITICAL" ? "riesgo de rotación" : null,
+                ].filter(Boolean).join(" y ")}. Revisá las recomendaciones y tomá acción para mejorar el bienestar del equipo.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Metrics row — 4 cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -209,11 +243,20 @@ export default async function ManagerPage() {
             value={String(latestScore.owi)}
             status={classifyOwi(latestScore.owi)}
           />
-          {orgAvgOwi !== null && (
-            <p className="mt-1 text-xs text-slate-500">
-              vs. {orgAvgOwi} promedio organizacional
-            </p>
-          )}
+          {orgAvgOwi !== null && (() => {
+            const diff = latestScore.owi - orgAvgOwi;
+            const diffAbs = Math.abs(diff);
+            const label = diff > 0
+              ? `${diffAbs} puntos por encima del promedio`
+              : diff < 0
+                ? `${diffAbs} puntos por debajo del promedio`
+                : "Igual al promedio";
+            return (
+              <p className={`mt-1 text-xs ${diff >= 0 ? "text-emerald-500" : diff < 0 ? "text-red-500" : "text-slate-500"}`}>
+                {label}
+              </p>
+            );
+          })()}
         </div>
         <MetricCard
           icon={AlertTriangle}
