@@ -25,6 +25,7 @@ export default async function AdminSurveysPage() {
     id: s.id,
     name: s.name,
     isActive: s.isActive,
+    frequency: s.frequency,
     responseCount: s._count.responses,
     createdAt: s.createdAt.toISOString(),
   }));

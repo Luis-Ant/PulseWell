@@ -89,9 +89,20 @@ export function validateSurveyResponse(
   return { valid: true, data: data as unknown as SurveyResponseInput };
 }
 
-// ── Period calculation (current ISO week) ──────────────────────────────
-export function getCurrentPeriod(): string {
+// ── Period calculation (ISO week, with optional biweekly support) ────────
+export function getCurrentPeriod(frequency?: string, startDate?: Date): string {
   const now = new Date();
+
+  // Biweekly: calculate weeks since startDate
+  if (frequency === "BIWEEKLY" && startDate) {
+    const start = new Date(startDate);
+    const diffMs = now.getTime() - start.getTime();
+    const diffWeeks = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000));
+    const biweekNum = diffWeeks < 0 ? 1 : Math.floor(diffWeeks / 2) + 1;
+    return `${now.getUTCFullYear()}-BW${String(biweekNum).padStart(2, "0")}`;
+  }
+
+  // Default: ISO week calculation
   const dayNum = now.getUTCDay() || 7;
   now.setUTCDate(now.getUTCDate() + 4 - dayNum);
   const yearStart = new Date(Date.UTC(now.getUTCFullYear(), 0, 1));
@@ -100,10 +111,28 @@ export function getCurrentPeriod(): string {
 }
 
 /**
- * Get the last N ISO week periods (including current).
- * Uses the same ISO week calculation as getCurrentPeriod().
+ * Get the last N period strings (including current).
+ * For weekly surveys, uses ISO week calculation.
+ * For biweekly surveys, uses weeks-since-startDate / 2.
  */
-export function getRecentPeriods(count: number = 4): string[] {
+export function getRecentPeriods(count: number = 4, frequency?: string, startDate?: Date): string[] {
+  // Biweekly: generate biweekly period strings
+  if (frequency === "BIWEEKLY" && startDate) {
+    const periods: string[] = [];
+    const now = new Date();
+    const start = new Date(startDate);
+    for (let i = count - 1; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i * 14); // 2 weeks back
+      const diffMs = d.getTime() - start.getTime();
+      const diffWeeks = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000));
+      const biweekNum = Math.max(1, diffWeeks < 0 ? 1 : Math.floor(diffWeeks / 2) + 1);
+      periods.push(`${d.getUTCFullYear()}-BW${String(biweekNum).padStart(2, "0")}`);
+    }
+    return periods;
+  }
+
+  // Default: ISO week calculation
   const periods: string[] = [];
   const now = new Date();
   for (let i = count - 1; i >= 0; i--) {

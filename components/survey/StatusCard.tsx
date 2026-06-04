@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Clock, ArrowRight } from "lucide-react";
+import { CheckCircle2, Clock, ArrowRight, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface StatusCardProps {
@@ -8,9 +8,11 @@ interface StatusCardProps {
   streak: number;
   period: string;
   onStartSurvey: () => void;
+  teamMemberCount: number | null;
+  teamRespondedCount: number | null;
 }
 
-export function StatusCard({ alreadySubmitted, streak, period, onStartSurvey }: StatusCardProps) {
+export function StatusCard({ alreadySubmitted, streak, period, onStartSurvey, teamMemberCount, teamRespondedCount }: StatusCardProps) {
   return (
     <div className={cn(
       "rounded-2xl border p-6",
@@ -49,6 +51,19 @@ export function StatusCard({ alreadySubmitted, streak, period, onStartSurvey }: 
           )}
         </div>
       </div>
+
+      {teamMemberCount && teamMemberCount >= 5 && teamRespondedCount !== null && (
+        <div className="mt-2 flex items-center gap-2">
+          <Users className="size-4 text-slate-500" />
+          <p className="text-xs text-slate-400">
+            {teamRespondedCount === teamMemberCount ? (
+              <span>🎉 ¡Todos respondieron!</span>
+            ) : (
+              <span>Tu equipo: {teamRespondedCount}/{teamMemberCount} respondieron</span>
+            )}
+          </p>
+        </div>
+      )}
 
       {!alreadySubmitted && (
         <button

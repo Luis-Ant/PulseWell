@@ -24,6 +24,8 @@ interface SurveyPageClientProps {
   streak: number;
   totalResponses: number;
   teamParticipation: number | null;
+  teamMemberCount: number | null;
+  teamRespondedCount: number | null;
 }
 
 // ── Component ──────────────────────────────────────────────────────────
@@ -36,6 +38,8 @@ export function SurveyPageClient({
   streak,
   totalResponses,
   teamParticipation,
+  teamMemberCount,
+  teamRespondedCount,
 }: SurveyPageClientProps) {
   const [submitted, setSubmitted] = useState(initialSubmitted);
   const [showForm, setShowForm] = useState(false);
@@ -68,6 +72,8 @@ export function SurveyPageClient({
         streak={streak}
         period={period}
         onStartSurvey={() => setShowForm(true)}
+        teamMemberCount={teamMemberCount}
+        teamRespondedCount={teamRespondedCount}
       />
 
       <StatsRow

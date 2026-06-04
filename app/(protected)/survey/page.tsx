@@ -54,22 +54,9 @@ export default async function SurveyPage() {
   }
 
   // ── Fetch data ───────────────────────────────────────────────────
-  const period = getCurrentPeriod();
-
-  const [activeSurvey, existingResponse, allResponses] = await Promise.all([
-    prisma.survey.findFirst({
-      where: { organizationId: user.organizationId, isActive: true },
-    }),
-    prisma.surveyResult.findUnique({
-      where: { userId_period: { userId: user.id, period } },
-    }),
-    prisma.surveyResult.findMany({
-      where: { userId: user.id },
-      select: { period: true },
-      distinct: ["period"],
-      orderBy: { period: "desc" },
-    }),
-  ]);
+  const activeSurvey = await prisma.survey.findFirst({
+    where: { organizationId: user.organizationId, isActive: true },
+  });
 
   // ── No active survey ─────────────────────────────────────────────
   if (!activeSurvey) {
@@ -86,10 +73,24 @@ export default async function SurveyPage() {
     );
   }
 
+  const period = getCurrentPeriod(activeSurvey.frequency, activeSurvey.startDate);
+
+  const [existingResponse, allResponses] = await Promise.all([
+    prisma.surveyResult.findUnique({
+      where: { userId_period: { userId: user.id, period } },
+    }),
+    prisma.surveyResult.findMany({
+      where: { userId: user.id },
+      select: { period: true },
+      distinct: ["period"],
+      orderBy: { period: "desc" },
+    }),
+  ]);
+
   const alreadySubmitted = !!existingResponse;
 
   // ── History ──────────────────────────────────────────────────────
-  const historyPeriods = getRecentPeriods(4);
+  const historyPeriods = getRecentPeriods(4, activeSurvey.frequency, activeSurvey.startDate);
   const allUserPeriods = new Set(allResponses.map((r) => r.period!));
   const history = historyPeriods.map((p) => ({
     period: p,
@@ -104,20 +105,20 @@ export default async function SurveyPage() {
   const totalResponses = allResponses.length;
 
   // ── Team participation ───────────────────────────────────────────
-  let teamParticipation: number | null = null;
+  const teamMemberCount = user.teamId ? await prisma.user.count({ where: { teamId: user.teamId } }) : null;
+  let teamRespondedCount: number | null = null;
   if (user.teamId) {
-    const teamMemberCount = await prisma.user.count({
-      where: { teamId: user.teamId },
+    const teamResponded = await prisma.surveyResult.findMany({
+      where: { teamId: user.teamId, period },
+      select: { userId: true },
+      distinct: ["userId"],
     });
-    if (teamMemberCount >= 5) {
-      const teamResponded = await prisma.surveyResult.findMany({
-        where: { teamId: user.teamId, period },
-        select: { userId: true },
-        distinct: ["userId"],
-      });
-      teamParticipation = Math.round((teamResponded.length / teamMemberCount) * 100);
-    }
+    teamRespondedCount = teamResponded.length;
   }
+
+  const teamParticipation = teamMemberCount && teamRespondedCount !== null && teamMemberCount >= 5
+    ? Math.round((teamRespondedCount / teamMemberCount) * 100)
+    : null;
 
   // ── Render dashboard ─────────────────────────────────────────────
   return (
@@ -130,6 +131,8 @@ export default async function SurveyPage() {
       streak={streak}
       totalResponses={totalResponses}
       teamParticipation={teamParticipation}
+      teamMemberCount={teamMemberCount}
+      teamRespondedCount={teamRespondedCount}
     />
   );
 }

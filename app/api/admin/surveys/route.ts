@@ -21,6 +21,7 @@ export async function GET() {
     id: s.id,
     name: s.name,
     isActive: s.isActive,
+    frequency: s.frequency,
     responseCount: s._count.responses,
     createdAt: s.createdAt.toISOString(),
   }));
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { name } = body;
+  const { name, frequency } = body;
 
   if (!name || typeof name !== "string" || name.trim().length === 0) {
     return NextResponse.json(
@@ -56,7 +57,12 @@ export async function POST(request: Request) {
   }
 
   const survey = await prisma.survey.create({
-    data: { name: name.trim(), isActive: true, organizationId: org.id },
+    data: {
+      name: name.trim(),
+      isActive: true,
+      frequency: frequency === "BIWEEKLY" ? "BIWEEKLY" : "WEEKLY",
+      organizationId: org.id,
+    },
   });
 
   return NextResponse.json({ success: true, data: survey }, { status: 201 });

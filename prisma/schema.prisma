@@ -86,6 +86,8 @@ model Survey {
   id             String         @id @default(cuid())
   name           String
   isActive       Boolean        @default(true)
+  frequency      String         @default("WEEKLY")
+  startDate      DateTime       @default(now())
   organizationId String
   organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   responses      SurveyResult[]
