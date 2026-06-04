@@ -1,8 +1,10 @@
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/server";
+import { prisma } from "@/lib/prisma";
+import { getCurrentPeriod } from "@/lib/survey-utils";
 import { signOut } from "@/lib/auth/actions";
 import { Button } from "@/components/ui/button";
-import { LogOut } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface ProtectedLayoutProps {
@@ -33,6 +35,16 @@ export default async function ProtectedLayout({
     redirect("/auth/login");
   }
 
+  // ── Pending survey notification ───────────────────────────────────
+  let hasPendingSurvey = false;
+  if (user.role === "EMPLOYEE") {
+    const period = getCurrentPeriod();
+    const existingResponse = await prisma.surveyResult.findUnique({
+      where: { userId_period: { userId: user.id, period } },
+    });
+    hasPendingSurvey = !existingResponse;
+  }
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       {/* Top nav bar */}
@@ -48,6 +60,12 @@ export default async function ProtectedLayout({
           </div>
 
           <div className="flex items-center gap-4">
+            {hasPendingSurvey && (
+              <div className="relative">
+                <Bell className="size-5 text-cyan-400" />
+                <span className="absolute -right-1 -top-1 size-2.5 rounded-full bg-red-500 ring-2 ring-slate-950" />
+              </div>
+            )}
             <span className="text-sm text-slate-400">{user.name}</span>
             <form action={signOut}>
               <Button

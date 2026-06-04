@@ -1,8 +1,7 @@
 import { getUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getCurrentPeriod, SURVEY_QUESTIONS } from "@/lib/survey-utils";
+import { getCurrentPeriod, getRecentPeriods, SURVEY_QUESTIONS, calculateStreak } from "@/lib/survey-utils";
 import { SurveyPageClient } from "./SurveyPageClient";
-import { ConfirmationView } from "@/components/survey/ConfirmationView";
 import { AlertTriangle, Shield } from "lucide-react";
 
 // ── Page (Server Component) ────────────────────────────────────────────
@@ -57,12 +56,18 @@ export default async function SurveyPage() {
   // ── Fetch data ───────────────────────────────────────────────────
   const period = getCurrentPeriod();
 
-  const [activeSurvey, existingResponse] = await Promise.all([
+  const [activeSurvey, existingResponse, allResponses] = await Promise.all([
     prisma.survey.findFirst({
       where: { organizationId: user.organizationId, isActive: true },
     }),
     prisma.surveyResult.findUnique({
       where: { userId_period: { userId: user.id, period } },
+    }),
+    prisma.surveyResult.findMany({
+      where: { userId: user.id },
+      select: { period: true },
+      distinct: ["period"],
+      orderBy: { period: "desc" },
     }),
   ]);
 
@@ -81,18 +86,50 @@ export default async function SurveyPage() {
     );
   }
 
-  // ── Already submitted → confirmation ─────────────────────────────
-  if (existingResponse) {
-    return <ConfirmationView period={period} />;
+  const alreadySubmitted = !!existingResponse;
+
+  // ── History ──────────────────────────────────────────────────────
+  const historyPeriods = getRecentPeriods(4);
+  const allUserPeriods = new Set(allResponses.map((r) => r.period!));
+  const history = historyPeriods.map((p) => ({
+    period: p,
+    responded: allUserPeriods.has(p),
+  }));
+
+  // ── Streak ───────────────────────────────────────────────────────
+  const userPeriods = allResponses.map((r) => r.period!).filter(Boolean);
+  const streak = calculateStreak(userPeriods);
+
+  // ── Total responses ──────────────────────────────────────────────
+  const totalResponses = allResponses.length;
+
+  // ── Team participation ───────────────────────────────────────────
+  let teamParticipation: number | null = null;
+  if (user.teamId) {
+    const teamMemberCount = await prisma.user.count({
+      where: { teamId: user.teamId },
+    });
+    if (teamMemberCount >= 5) {
+      const teamResponded = await prisma.surveyResult.findMany({
+        where: { teamId: user.teamId, period },
+        select: { userId: true },
+        distinct: ["userId"],
+      });
+      teamParticipation = Math.round((teamResponded.length / teamMemberCount) * 100);
+    }
   }
 
-  // ── Render form ──────────────────────────────────────────────────
+  // ── Render dashboard ─────────────────────────────────────────────
   return (
     <SurveyPageClient
       surveyName={activeSurvey.name}
       questions={SURVEY_QUESTIONS}
       period={period}
-      alreadySubmitted={false}
+      alreadySubmitted={alreadySubmitted}
+      history={history}
+      streak={streak}
+      totalResponses={totalResponses}
+      teamParticipation={teamParticipation}
     />
   );
 }

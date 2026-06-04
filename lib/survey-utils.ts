@@ -98,3 +98,67 @@ export function getCurrentPeriod(): string {
   const weekNum = Math.ceil(((now.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   return `${now.getUTCFullYear()}-W${String(weekNum).padStart(2, "0")}`;
 }
+
+/**
+ * Get the last N ISO week periods (including current).
+ * Uses the same ISO week calculation as getCurrentPeriod().
+ */
+export function getRecentPeriods(count: number = 4): string[] {
+  const periods: string[] = [];
+  const now = new Date();
+  for (let i = count - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i * 7);
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNum = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+    periods.push(`${d.getUTCFullYear()}-W${String(weekNum).padStart(2, "0")}`);
+  }
+  return periods;
+}
+
+/**
+ * Calculate the current consecutive streak of ISO week periods.
+ * Takes a sorted array of period strings (newest first) and returns
+ * the number of consecutive weeks (including the current one if present).
+ */
+export function calculateStreak(periods: string[]): number {
+  if (periods.length === 0) return 0;
+
+  const current = getCurrentPeriod();
+  const sorted = [...new Set(periods)].sort().reverse(); // newest first
+
+  // Parse "2026-W23" → { year: 2026, week: 23 }
+  function parsePeriod(p: string): { year: number; week: number } | null {
+    const match = p.match(/^(\d{4})-W(\d{2})$/);
+    if (!match) return null;
+    return { year: parseInt(match[1]!), week: parseInt(match[2]!) };
+  }
+
+  // Convert to absolute week number for comparison
+  function toAbsoluteWeek(p: { year: number; week: number }): number {
+    return p.year * 53 + p.week; // approximation, good enough for streaks
+  }
+
+  const currentParsed = parsePeriod(current);
+  if (!currentParsed) return 0;
+
+  let streak = 0;
+  let expected = toAbsoluteWeek(currentParsed);
+
+  for (const period of sorted) {
+    const parsed = parsePeriod(period);
+    if (!parsed) continue;
+    const abs = toAbsoluteWeek(parsed);
+
+    if (abs === expected) {
+      streak++;
+      expected--;
+    } else if (abs < expected) {
+      break; // gap detected
+    }
+  }
+
+  return streak;
+}
