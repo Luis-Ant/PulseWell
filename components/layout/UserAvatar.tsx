@@ -1,6 +1,3 @@
-"use client";
-
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface UserAvatarProps {
@@ -18,9 +15,9 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 const SIZE_CLASSES: Record<string, string> = {
-  sm: "size-8 text-xs",
-  md: "size-10 text-sm",
-  lg: "size-14 text-lg",
+  sm: "size-8 text-xs ring-2",
+  md: "size-10 text-sm ring-2",
+  lg: "size-14 text-lg ring-2",
 };
 
 function getInitials(name: string): string {
@@ -34,25 +31,20 @@ function getInitials(name: string): string {
 }
 
 export function UserAvatar({ name, role, size = "md", imageUrl }: UserAvatarProps) {
-  const [imgError, setImgError] = useState(false);
-
-  const showImage = imageUrl && !imgError;
-
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full font-semibold ring-2 ring-inset overflow-hidden",
-        !showImage && (ROLE_COLORS[role] ?? ROLE_COLORS.EMPLOYEE),
+        "flex items-center justify-center rounded-full font-semibold ring-inset overflow-hidden",
+        ROLE_COLORS[role] ?? ROLE_COLORS.EMPLOYEE,
         SIZE_CLASSES[size],
       )}
       title={name}
     >
-      {showImage ? (
+      {imageUrl ? (
         <img
           src={imageUrl}
           alt={name}
           className="size-full rounded-full object-cover"
-          onError={() => setImgError(true)}
         />
       ) : (
         getInitials(name)
