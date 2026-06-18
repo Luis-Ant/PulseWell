@@ -31,7 +31,7 @@ export default function LoginPage() {
                 PulseWell
               </h1>
               <p className="mt-4 max-w-sm text-lg leading-relaxed text-slate-400">
-                Convertí señales de bienestar en decisiones inteligentes para tu equipo.
+                Convierte señales de bienestar en decisiones inteligentes para tu equipo.
               </p>
             </div>
 
@@ -72,7 +72,7 @@ export default function LoginPage() {
               PULSEWELL
             </h1>
             <p className="mt-2 text-sm text-slate-400">
-              Iniciá sesión para acceder al panel
+              Inicia sesión para acceder al panel
             </p>
           </div>
 

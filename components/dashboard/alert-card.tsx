@@ -121,7 +121,7 @@ export function AlertCard({ alert }: AlertCardProps) {
 
       <div className="mt-3">
         <time className="text-[11px] text-slate-600">
-          {new Date(alert.triggeredAt).toLocaleDateString("es-AR", {
+          {new Date(alert.triggeredAt).toLocaleDateString("es-MX", {
             day: "numeric",
             month: "short",
             year: "numeric",

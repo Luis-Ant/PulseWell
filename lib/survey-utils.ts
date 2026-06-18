@@ -10,7 +10,7 @@ export const SURVEY_QUESTIONS = {
   belonging: {
     key: "belonging",
     label: "Pertenencia",
-    question: "¿Qué tan conectado te sentís con tu equipo?",
+    question: "¿Qué tan conectado te sientes con tu equipo?",
     lowLabel: "Nada conectado",
     highLabel: "Muy conectado",
   },

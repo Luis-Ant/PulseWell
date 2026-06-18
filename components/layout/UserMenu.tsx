@@ -54,7 +54,7 @@ export function UserMenu({ userName, userRole, hasPendingSurvey, notificationCou
 
   // Mock notifications for demo
   const demoNotifications = [
-    ...(hasPendingSurvey ? [{ icon: Clock, text: "Tenés una encuesta pendiente esta semana", time: "Ahora", color: "text-cyan-400" }] : []),
+    ...(hasPendingSurvey ? [{ icon: Clock, text: "Tienes una encuesta pendiente esta semana", time: "Ahora", color: "text-cyan-400" }] : []),
     { icon: CheckCircle2, text: "Tu equipo alcanzó el 80% de participación", time: "Hace 2 días", color: "text-emerald-400" },
   ];
 

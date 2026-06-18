@@ -69,7 +69,7 @@ export default async function HomePage() {
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
             <div className="flex flex-col gap-6">
               <h1 className="font-heading max-w-4xl text-4xl font-bold leading-[1.05] tracking-tight text-white md:text-7xl">
-                Convertí señales
+                Convierte señales
                 <br />
                 de bienestar en
                 <br />
@@ -149,15 +149,15 @@ export default async function HomePage() {
         <div id="features" className="grid gap-4 scroll-mt-20 lg:grid-cols-3">
           <SectionCard
             title="Analítica agregada"
-            description="Visualizá el estado de bienestar por equipo sin exponer datos individuales sensibles."
+            description="Visualiza el estado de bienestar por equipo sin exponer datos individuales sensibles."
           />
           <SectionCard
             title="Alertas tempranas"
-            description="Identificá estrés alto, carga excesiva y caída de energía antes de que afecten al negocio."
+            description="Identifica estrés alto, carga excesiva y caída de energía antes de que afecten al negocio."
           />
           <SectionCard
             title="Recomendaciones"
-            description="Recibí acciones preventivas para managers a partir del estado actual del equipo."
+            description="Recibe acciones preventivas para managers a partir del estado actual del equipo."
           />
         </div>
       </section>
@@ -226,7 +226,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-6 pb-20">
         <div className="rounded-3xl border border-cyan-800/30 bg-gradient-to-r from-cyan-950/40 to-slate-900 p-10 text-center">
           <h2 className="font-sans text-3xl font-bold text-white md:text-4xl">
-            ¿Querés probar PulseWell en tu empresa?
+            ¿Quieres probar PulseWell en tu empresa?
           </h2>
           <p className="mt-3 max-w-xl mx-auto text-slate-400">
             Estamos buscando empresas para nuestro programa de piloto controlado.

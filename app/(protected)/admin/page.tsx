@@ -29,7 +29,7 @@ export default async function AdminPage() {
       <div>
         <h1 className="text-3xl font-bold text-white">Panel de Administración</h1>
         <p className="mt-1 text-sm text-slate-400">
-          Gestioná tu organización, equipos, usuarios y encuestas.
+          Gestiona tu organización, equipos, usuarios y encuestas.
         </p>
       </div>
 
@@ -60,7 +60,7 @@ export default async function AdminPage() {
             <h3 className="text-sm font-semibold text-white">Regenerar datos demo</h3>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-slate-400">
-            Restablecé la base de datos con datos de demostración. Esto elimina todos los datos actuales.
+            Restablece la base de datos con datos de demostración. Esto elimina todos los datos actuales.
           </p>
           <div className="mt-4 flex gap-3">
             <ActionButton action="/api/demo/seed" label="Regenerar seed" />
@@ -75,7 +75,7 @@ export default async function AdminPage() {
             <h3 className="text-sm font-semibold text-white">Regenerar alertas</h3>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-slate-400">
-            Recalculá alertas y recomendaciones desde las métricas actuales de los equipos.
+            Recalcula alertas y recomendaciones desde las métricas actuales de los equipos.
           </p>
           <div className="mt-4">
             <ActionButton action="/api/alerts/regenerate" label="Regenerar ahora" />

@@ -9,7 +9,7 @@ export default function ProtectedError({ error, reset }: { error: Error & { dige
       <AlertTriangle className="size-12 text-yellow-400" />
       <h1 className="mt-6 text-2xl font-bold text-white">Error inesperado</h1>
       <p className="mt-2 max-w-md text-sm text-slate-400">
-        Ocurrió un error al cargar esta página. Intentá nuevamente.
+        Ocurrió un error al cargar esta página. Intenta nuevamente.
       </p>
 
       {process.env.NODE_ENV !== "production" && (

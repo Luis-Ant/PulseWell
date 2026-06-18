@@ -42,7 +42,7 @@ export default async function OrganizationPage() {
           <div>
             <h2 className="text-xl font-bold text-white">{org.name}</h2>
             <p className="text-xs text-slate-500">
-              Creada el {new Date(org.createdAt).toLocaleDateString("es-AR")}
+              Creada el {new Date(org.createdAt).toLocaleDateString("es-MX")}
             </p>
           </div>
         </div>

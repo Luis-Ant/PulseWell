@@ -20,7 +20,7 @@ export default function SurveyError({ error, reset }: SurveyErrorProps) {
       </h1>
 
       <p className="mt-2 max-w-md text-center text-sm leading-relaxed text-slate-400">
-        No se pudo cargar la encuesta. Intentá nuevamente en unos segundos.
+        No se pudo cargar la encuesta. Intenta nuevamente en unos segundos.
       </p>
 
       {process.env.NODE_ENV !== "production" && (

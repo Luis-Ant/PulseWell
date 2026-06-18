@@ -47,7 +47,7 @@ export function SurveyForm({ surveyName, questions, period, onSubmitted, onCance
     for (const q of questionList) {
       const val = scores[q.key];
       if (val === undefined || val === null) {
-        errors[q.key] = "Seleccioná un valor para esta pregunta.";
+        errors[q.key] = "Selecciona un valor para esta pregunta.";
       }
     }
 
@@ -81,7 +81,7 @@ export function SurveyForm({ surveyName, questions, period, onSubmitted, onCance
 
         onSubmitted();
       } catch {
-        setError("Error de conexión. Intentá nuevamente.");
+        setError("Error de conexión. Intenta nuevamente.");
       }
     });
   }

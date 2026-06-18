@@ -19,7 +19,7 @@ export default function HrError({ error, reset }: HrErrorProps) {
 
       <p className="mt-2 max-w-md text-center text-sm leading-relaxed text-slate-400">
         Ocurrió un error al obtener los datos del panel de HR.
-        Intentá nuevamente en unos segundos.
+        Intenta nuevamente en unos segundos.
       </p>
 
       {process.env.NODE_ENV !== "production" && (

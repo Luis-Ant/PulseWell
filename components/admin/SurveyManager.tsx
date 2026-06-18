@@ -153,7 +153,7 @@ export function SurveyManager({ surveys: initialSurveys }: SurveyManagerProps) {
                 </td>
                 <td className="px-4 py-3 text-slate-400">{s.responseCount}</td>
                 <td className="px-4 py-3 text-slate-500 text-xs">
-                  {new Date(s.createdAt).toLocaleDateString("es-AR")}
+                  {new Date(s.createdAt).toLocaleDateString("es-MX")}
                 </td>
                 <td className="px-4 py-3">
                   <ConfirmDialog
@@ -176,7 +176,7 @@ export function SurveyManager({ surveys: initialSurveys }: SurveyManagerProps) {
             {surveys.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-sm text-slate-500">
-                  No hay encuestas creadas. Creá una para comenzar.
+                  No hay encuestas creadas. Crea una para comenzar.
                 </td>
               </tr>
             )}

@@ -44,7 +44,7 @@ export async function signIn(
   });
 
   if (error) {
-    return { error: "Credenciales inválidas. Intentá de nuevo." };
+    return { error: "Credenciales inválidas. Intenta de nuevo." };
   }
 
   // Resolve internal user to get the authoritative role for redirect.

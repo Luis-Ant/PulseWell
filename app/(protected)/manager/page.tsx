@@ -26,7 +26,7 @@ export default async function ManagerPage() {
     return (
       <div className="flex flex-col items-center justify-center py-24">
         <h1 className="text-3xl font-bold text-white">Panel de Manager</h1>
-        <p className="mt-4 text-slate-400">Iniciá sesión para acceder al panel.</p>
+        <p className="mt-4 text-slate-400">Inicia sesión para acceder al panel.</p>
       </div>
     );
   }
@@ -228,7 +228,7 @@ export default async function ManagerPage() {
                 Se detectaron {[
                   latestScore.burnoutRisk === "HIGH" || latestScore.burnoutRisk === "CRITICAL" ? "riesgo de burnout" : null,
                   latestScore.attritionRisk === "HIGH" || latestScore.attritionRisk === "CRITICAL" ? "riesgo de rotación" : null,
-                ].filter(Boolean).join(" y ")}. Revisá las recomendaciones y tomá acción para mejorar el bienestar del equipo.
+                ].filter(Boolean).join(" y ")}. Revisa las recomendaciones y tomá acción para mejorar el bienestar del equipo.
               </p>
             </div>
           </div>

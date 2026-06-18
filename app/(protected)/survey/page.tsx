@@ -14,10 +14,10 @@ export default async function SurveyPage() {
       <div className="flex flex-col items-center justify-center py-24 px-4">
         <Shield className="size-12 text-slate-600" />
         <h1 className="mt-6 text-2xl font-bold text-white">
-          Iniciá sesión
+          Inicia sesión
         </h1>
         <p className="mt-2 text-slate-400">
-          Necesitás iniciar sesión para acceder a la encuesta.
+          Necesitas iniciar sesión para acceder a la encuesta.
         </p>
       </div>
     );
@@ -47,7 +47,7 @@ export default async function SurveyPage() {
           Sin equipo asignado
         </h1>
         <p className="mt-2 text-slate-400">
-          No estás asignado a ningún equipo. Contactá a tu administrador.
+          No estás asignado a ningún equipo. Contacta a tu administrador.
         </p>
       </div>
     );
@@ -67,7 +67,7 @@ export default async function SurveyPage() {
           No hay encuesta activa
         </h1>
         <p className="mt-2 text-slate-400">
-          No hay encuestas disponibles en este momento. Volvé más tarde.
+          No hay encuestas disponibles en este momento. Vuelve más tarde.
         </p>
       </div>
     );
