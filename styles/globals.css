@@ -36,22 +36,21 @@
     min-height: 100vh;
     background: var(--color-slate-950);
     color: var(--color-slate-50);
-    /* Direct font references — localFont sets variables on <body>, so we
-       reference them here directly instead of going through @theme which
-       defines them at :root level where localFont variables aren't visible. */
-    font-family: var(--font-helvetica, ui-sans-serif, system-ui, sans-serif);
+    /* localFont variables now live on <html> (= :root), so @theme font
+       variables resolve correctly everywhere. */
+    font-family: var(--font-sans);
   }
 
   h1,
   h2,
   h3 {
-    font-family: var(--font-azedo-bold, var(--font-azedo-light, ui-serif, serif));
+    font-family: var(--font-heading);
   }
 
   h4,
   h5,
   h6 {
-    font-family: var(--font-azedo-light, var(--font-azedo-bold, ui-serif, serif));
+    font-family: var(--font-subheading);
   }
 }
 

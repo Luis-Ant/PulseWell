@@ -11,10 +11,9 @@ interface UserMenuProps {
   userRole: string;
   hasPendingSurvey: boolean;
   notificationCount?: number;
-  userImage?: string | null;
 }
 
-export function UserMenu({ userName, userRole, hasPendingSurvey, notificationCount = 0, userImage }: UserMenuProps) {
+export function UserMenu({ userName, userRole, hasPendingSurvey, notificationCount = 0 }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -110,7 +109,7 @@ export function UserMenu({ userName, userRole, hasPendingSurvey, notificationCou
         onClick={() => { setOpen(!open); setShowNotifications(false); }}
         className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-slate-800 transition-colors"
       >
-        <UserAvatar name={userName} role={userRole} size="sm" imageUrl={userImage} />
+        <UserAvatar name={userName} role={userRole} size="sm" />
         <span className="hidden text-sm text-slate-300 sm:inline">{userName.split(" ")[0]}</span>
         <ChevronDown className={cn("hidden size-3.5 text-slate-500 transition-transform sm:inline", open && "rotate-180")} />
       </button>
@@ -120,7 +119,7 @@ export function UserMenu({ userName, userRole, hasPendingSurvey, notificationCou
         <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl shadow-black/50 z-50 overflow-hidden">
           {/* Profile header */}
           <div className="flex items-center gap-3 border-b border-slate-800 px-4 py-4">
-            <UserAvatar name={userName} role={userRole} size="md" imageUrl={userImage} />
+            <UserAvatar name={userName} role={userRole} size="md" />
             <div className="min-w-0">
               <p className="text-sm font-semibold text-white truncate">{userName}</p>
               <p className="text-xs text-slate-400">{roleLabels[userRole] ?? userRole}</p>

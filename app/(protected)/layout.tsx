@@ -43,27 +43,6 @@ export default async function ProtectedLayout({
     hasPendingSurvey = !existingResponse;
   }
 
-  // ── Avatar SVG (inline) ─────────────────────────────────────────
-  // Generate initials inline — no external API calls, no flash on hydration,
-  // no rate limits or CSP issues.
-  const initials = user.name
-    .split(" ")
-    .map((n) => n[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-  const avatarUrl =
-    `data:image/svg+xml,` +
-    encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-        <rect width="100" height="100" rx="50" fill="#1e293b"/>
-        <text x="50" y="50" dominant-baseline="central" text-anchor="middle"
-              font-family="Arial,sans-serif" font-size="44" font-weight="600"
-              fill="#94a3b8">${initials}</text>
-      </svg>`,
-    );
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
       {/* Top nav bar */}
@@ -83,7 +62,6 @@ export default async function ProtectedLayout({
               userName={user.name}
               userRole={user.role}
               hasPendingSurvey={hasPendingSurvey}
-              userImage={avatarUrl}
             />
           </div>
         </div>

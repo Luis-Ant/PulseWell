@@ -119,21 +119,21 @@ Esta secuencia reduce riesgo porque cada fase habilita la siguiente y produce va
 
 **Entregables:**
 
-- [ ] Proyecto Next.js 15 con TypeScript strict.
-- [ ] Tailwind CSS 4 y shadcn/ui configurados.
-- [ ] Supabase project creado.
-- [ ] Prisma 7 configurado con `prisma.config.ts`.
-- [ ] Variables de entorno documentadas.
-- [ ] Repositorio GitHub conectado a Vercel.
-- [ ] README consistente con la propuesta de valor.
+- [x] Proyecto Next.js 15 con TypeScript strict.
+- [x] Tailwind CSS 4 y shadcn/ui configurados.
+- [x] Supabase project creado.
+- [x] Prisma 7 configurado con `prisma.config.ts`.
+- [x] Variables de entorno documentadas.
+- [x] Repositorio GitHub conectado a Vercel.
+- [x] README consistente con la propuesta de valor.
 
 **Dependencias:** ninguna.
 
 **Criterios de salida:**
 
-- [ ] La app puede ejecutarse localmente con Bun.
-- [ ] El deploy inicial en Vercel existe o queda preparado.
-- [ ] La estructura base permite agregar API Routes, Prisma y componentes UI.
+- [x] La app puede ejecutarse localmente con Bun.
+- [x] El deploy inicial en Vercel existe o queda preparado.
+- [x] La estructura base permite agregar API Routes, Prisma y componentes UI.
 
 ---
 

@@ -78,21 +78,22 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="es">
-      <body
-        className={[
-          ailerons.variable,
-          azedoBold.variable,
-          azedoLight.variable,
-          helvetica.variable,
-          helveticaLight.variable,
-          helveticaBold.variable,
-          helveticaOblique.variable,
-          helveticaBoldOblique.variable,
-          helveticaCompressed.variable,
-          helveticaRoundedBold.variable,
-        ].join(" ")}
-      >
+    <html
+      lang="es"
+      className={[
+        ailerons.variable,
+        azedoBold.variable,
+        azedoLight.variable,
+        helvetica.variable,
+        helveticaLight.variable,
+        helveticaBold.variable,
+        helveticaOblique.variable,
+        helveticaBoldOblique.variable,
+        helveticaCompressed.variable,
+        helveticaRoundedBold.variable,
+      ].join(" ")}
+    >
+      <body>
         <Toaster
           position="bottom-right"
           toastOptions={{

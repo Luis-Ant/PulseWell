@@ -4,7 +4,6 @@ interface UserAvatarProps {
   name: string;
   role: string;
   size?: "sm" | "md" | "lg";
-  imageUrl?: string | null;
 }
 
 const ROLE_COLORS: Record<string, string> = {
@@ -30,25 +29,17 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-export function UserAvatar({ name, role, size = "md", imageUrl }: UserAvatarProps) {
+export function UserAvatar({ name, role, size = "md" }: UserAvatarProps) {
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-full font-semibold ring-inset overflow-hidden",
+        "flex items-center justify-center rounded-full font-semibold ring-inset shrink-0",
         ROLE_COLORS[role] ?? ROLE_COLORS.EMPLOYEE,
         SIZE_CLASSES[size],
       )}
       title={name}
     >
-      {imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={name}
-          className="size-full rounded-full object-cover"
-        />
-      ) : (
-        getInitials(name)
-      )}
+      {getInitials(name)}
     </div>
   );
 }
