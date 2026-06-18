@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, Activity, TrendingUp, ShieldCheck } from "lucide-react";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { PrivacyBanner } from "@/components/shared/PrivacyBanner";
@@ -8,9 +7,10 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen bg-slate-950">
       {/* ─── Left Panel — Branding ──────────────────────────── */}
-      <div className="relative hidden w-5/12 flex-col justify-between overflow-hidden bg-slate-900 p-10 lg:flex"
-           style={{ backgroundImage: "url('/fondo.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
+      <div className="relative hidden w-5/12 flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-900 via-cyan-950 to-blue-950 p-10 lg:flex">
 
+        {/* Right-edge blur transition */}
+        <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-950 via-slate-950/70 to-transparent pointer-events-none z-10" />
         {/* Back link */}
         <Link
           href="/"
@@ -27,18 +27,9 @@ export default function LoginPage() {
               <p className="font-display text-xs uppercase tracking-[0.3em] text-cyan-300">
                 Organizational Wellbeing Intelligence
               </p>
-              <div className="flex items-center gap-3">
-                <Image
-                  src="/logo-icon.png"
-                  alt=""
-                  width={32}
-                  height={38}
-                  className="h-10 w-auto"
-                />
-                <h1 className="font-heading text-5xl font-bold leading-[1.05] tracking-tight text-white">
-                  PulseWell
-                </h1>
-              </div>
+              <h1 className="font-heading text-5xl font-bold leading-[1.05] tracking-tight text-white">
+                PulseWell
+              </h1>
               <p className="mt-4 max-w-sm text-lg leading-relaxed text-slate-400">
                 Convertí señales de bienestar en decisiones inteligentes para tu equipo.
               </p>
