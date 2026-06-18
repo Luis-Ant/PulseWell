@@ -1,10 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  /* Display — Ailerons: hero headlines, maximum impact
-     NOTE: Ailerons is a thin typeface by design (only one weight).
-     Use font-weight + text-stroke to visually thicken it. */
-  --font-display: var(--font-ailerons), ui-sans-serif, system-ui, sans-serif;
+  /* Display — Helvetica Bold: branding, uppercase headers */
+  --font-display: var(--font-helvetica-bold), ui-sans-serif, system-ui, sans-serif;
 
   /* Headings — Azedo: geometric, modern, bold presence
      NOTE: Azedo may not have number glyphs. Fall back to Helvetica Bold
@@ -59,13 +57,6 @@
 }
 
 @layer base {
-  /* Ailerons is a thin typeface — bold it globally */
-  .font-display {
-    font-weight: 900;
-    -webkit-text-stroke: 0.5px currentColor;
-    text-shadow: 0 0 0.3px currentColor;
-  }
-
   button:focus-visible,
   a:focus-visible,
   [tabindex]:focus-visible {

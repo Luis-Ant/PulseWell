@@ -4,13 +4,6 @@ import localFont from "next/font/local";
 import { Toaster } from "sonner";
 import "../styles/globals.css";
 
-// ─── Ailerons (Display) ───────────────────────────────────────
-const ailerons = localFont({
-  src: "../public/fonts/ailerons/Ailerons-Typeface.otf",
-  variable: "--font-ailerons",
-  display: "swap",
-});
-
 // ─── Azedo (Headings) ─────────────────────────────────────────
 const azedoBold = localFont({
   src: "../public/fonts/azedo/Azedo-Bold.otf",
@@ -85,7 +78,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html
       lang="es"
       className={[
-        ailerons.variable,
         azedoBold.variable,
         azedoLight.variable,
         helvetica.variable,
