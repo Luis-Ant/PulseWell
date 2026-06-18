@@ -46,7 +46,7 @@ export function MetricCard({
         <Icon className="size-5 text-cyan-300" />
       </div>
 
-      <p className="font-heading mt-4 text-3xl font-bold leading-none text-white">
+      <p className="font-sans mt-4 text-3xl font-bold leading-none text-white">
         {value}
       </p>
 

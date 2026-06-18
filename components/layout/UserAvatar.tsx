@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 interface UserAvatarProps {
@@ -14,9 +17,9 @@ const ROLE_COLORS: Record<string, string> = {
 };
 
 const SIZE_CLASSES: Record<string, string> = {
-  sm: "size-8 text-xs ring-2",
-  md: "size-10 text-sm ring-2",
-  lg: "size-14 text-lg ring-2",
+  sm: "size-8",
+  md: "size-10",
+  lg: "size-14",
 };
 
 function getInitials(name: string): string {
@@ -29,17 +32,46 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-export function UserAvatar({ name, role, size = "md" }: UserAvatarProps) {
+function InitialsCircle({ name, role, size }: UserAvatarProps) {
   return (
     <div
       className={cn(
         "flex items-center justify-center rounded-full font-semibold ring-inset shrink-0",
         ROLE_COLORS[role] ?? ROLE_COLORS.EMPLOYEE,
         SIZE_CLASSES[size],
+        "text-xs ring-2",
+        size === "md" && "text-sm",
+        size === "lg" && "text-lg",
       )}
-      title={name}
+      aria-hidden="true"
     >
       {getInitials(name)}
+    </div>
+  );
+}
+
+export function UserAvatar({ name, role, size = "md" }: UserAvatarProps) {
+  const [imgFailed, setImgFailed] = useState(false);
+  const seed = encodeURIComponent(name);
+  const avatarUrl = `https://api.dicebear.com/9.x/avataaars/png?seed=${seed}`;
+
+  return (
+    <div
+      className={cn("relative shrink-0", SIZE_CLASSES[size])}
+      title={name}
+    >
+      {/* Always-rendered initials fallback (base layer) */}
+      <InitialsCircle name={name} role={role} size={size} />
+
+      {/* DiceBear avatar image — overlays the initials when loaded */}
+      {!imgFailed && (
+        <img
+          src={avatarUrl}
+          alt={name}
+          onError={() => setImgFailed(true)}
+          className="absolute inset-0 size-full rounded-full object-cover"
+        />
+      )}
     </div>
   );
 }

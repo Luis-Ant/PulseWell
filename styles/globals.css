@@ -4,9 +4,11 @@
   /* Display — Ailerons: hero headlines, maximum impact */
   --font-display: var(--font-ailerons), ui-sans-serif, system-ui, sans-serif;
 
-  /* Headings — Azedo: geometric, modern, bold presence */
-  --font-heading: var(--font-azedo-bold), var(--font-azedo-light);
-  --font-subheading: var(--font-azedo-light), var(--font-azedo-bold);
+  /* Headings — Azedo: geometric, modern, bold presence
+     NOTE: Azedo may not have number glyphs. Fall back to Helvetica Bold
+     and system fonts so numbers always render. */
+  --font-heading: var(--font-azedo-bold), var(--font-helvetica-bold), ui-sans-serif, system-ui, sans-serif;
+  --font-subheading: var(--font-azedo-light), var(--font-helvetica), ui-sans-serif, system-ui, sans-serif;
 
   /* Brand — Helvetica Rounded Bold: logo, brand moments */
   --font-brand: var(--font-helvetica-rounded-bold), var(--font-helvetica-bold);

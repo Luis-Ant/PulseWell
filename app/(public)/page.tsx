@@ -87,10 +87,10 @@ export default async function HomePage() {
                 índice OWI
               </p>
               <div className="mt-4 flex items-end gap-3">
-                <span className="font-heading text-7xl font-bold leading-none text-white">
+                <span className="font-sans text-7xl font-bold leading-none text-white">
                   {summary.owi}
                 </span>
-                <span className="font-subheading pb-1 text-lg tracking-wide text-emerald-300">
+                <span className="font-sans pb-1 text-lg font-medium tracking-wide text-emerald-300">
                   / 100
                 </span>
               </div>
