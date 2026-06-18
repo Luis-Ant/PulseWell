@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Activity, Brain, ShieldCheck, TrendingUp, ClipboardList, Banknote } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { SectionCard } from "@/components/dashboard/section-card";
@@ -29,11 +30,17 @@ export default async function HomePage() {
       {/* ─── Header ──────────────────────────────────────── */}
       <header className="border-b border-slate-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Link
-            href="/"
-            className="font-display text-xl uppercase tracking-[0.15em] text-white"
-          >
-            PULSEWELL
+          <Link href="/" className="flex items-center gap-2">
+            <Image
+              src="/logo-icon.webp"
+              alt=""
+              width={20}
+              height={24}
+              className="h-5 w-auto"
+            />
+            <span className="font-display text-xl uppercase tracking-[0.15em] text-white">
+              PULSEWELL
+            </span>
           </Link>
 
           {user ? (
@@ -225,14 +232,14 @@ export default async function HomePage() {
       {/* ─── Pilot CTA ──────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-6 pb-20">
         <div className="rounded-3xl border border-cyan-800/30 bg-gradient-to-r from-cyan-950/40 to-slate-900 p-10 text-center">
-          <h2 className="font-heading text-3xl font-bold text-white md:text-4xl">
+          <h2 className="font-sans text-3xl font-bold text-white md:text-4xl">
             ¿Querés probar PulseWell en tu empresa?
           </h2>
           <p className="mt-3 max-w-xl mx-auto text-slate-400">
             Estamos buscando empresas para nuestro programa de piloto controlado.
             Sin costo durante la fase de validación.
           </p>
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-6 flex flex-col items-center gap-3">
             <Button asChild className="font-brand text-sm tracking-wide">
               <Link href="/auth/login">Ver demo ahora</Link>
             </Button>

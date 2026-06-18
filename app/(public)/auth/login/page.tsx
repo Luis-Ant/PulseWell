@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Activity, TrendingUp, ShieldCheck } from "lucide-react";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { PrivacyBanner } from "@/components/shared/PrivacyBanner";
@@ -30,9 +31,18 @@ export default function LoginPage() {
               <p className="font-display text-xs uppercase tracking-[0.3em] text-cyan-300">
                 Organizational Wellbeing Intelligence
               </p>
-              <h1 className="font-heading text-5xl font-bold leading-[1.05] tracking-tight text-white">
-                PulseWell
-              </h1>
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/logo-icon.webp"
+                  alt=""
+                  width={32}
+                  height={38}
+                  className="h-10 w-auto"
+                />
+                <h1 className="font-heading text-5xl font-bold leading-[1.05] tracking-tight text-white">
+                  PulseWell
+                </h1>
+              </div>
               <p className="mt-4 max-w-sm text-lg leading-relaxed text-slate-400">
                 Convertí señales de bienestar en decisiones inteligentes para tu equipo.
               </p>
