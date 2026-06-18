@@ -51,7 +51,7 @@ export default async function ProtectedLayout({
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-2">
             <Image
-              src="/logo-icon.webp"
+              src="/logo-icon.png"
               alt=""
               width={18}
               height={21}

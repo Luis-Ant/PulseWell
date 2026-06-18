@@ -8,12 +8,8 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen bg-slate-950">
       {/* ─── Left Panel — Branding ──────────────────────────── */}
-      <div className="relative hidden w-5/12 flex-col justify-between overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950 p-10 lg:flex">
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-[0.03]">
-          <div className="absolute -left-20 -top-20 size-96 rounded-full bg-cyan-400 blur-3xl" />
-          <div className="absolute -bottom-32 -right-20 size-80 rounded-full bg-purple-400 blur-3xl" />
-        </div>
+      <div className="relative hidden w-5/12 flex-col justify-between overflow-hidden bg-slate-900 p-10 lg:flex"
+           style={{ backgroundImage: "url('/fondo.png')", backgroundSize: "cover", backgroundPosition: "center" }}>
 
         {/* Back link */}
         <Link
@@ -33,7 +29,7 @@ export default function LoginPage() {
               </p>
               <div className="flex items-center gap-3">
                 <Image
-                  src="/logo-icon.webp"
+                  src="/logo-icon.png"
                   alt=""
                   width={32}
                   height={38}

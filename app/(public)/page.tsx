@@ -32,7 +32,7 @@ export default async function HomePage() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <Link href="/" className="flex items-center gap-2">
             <Image
-              src="/logo-icon.webp"
+              src="/logo-icon.png"
               alt=""
               width={20}
               height={24}
