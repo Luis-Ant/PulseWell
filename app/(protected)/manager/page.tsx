@@ -169,11 +169,12 @@ export default async function ManagerPage() {
   }));
 
   // Trend data (single team, last 4 periods)
-  const trendScores = await prisma.wellbeingScore.findMany({
+  const rawScores = await prisma.wellbeingScore.findMany({
     where: { teamId },
-    orderBy: { period: "asc" },
+    orderBy: { period: "desc" },
     take: 4,
   });
+  const trendScores = rawScores.reverse();
 
   const trendData: TrendDataPoint[] = trendScores.map((s) => ({
     period: s.period ?? "",
