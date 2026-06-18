@@ -70,13 +70,14 @@ test.describe("Fonts & Avatars", { tag: ["@high", "@e2e", "@fonts"] }, () => {
       expect(text).toMatch(/\d+/);
     });
 
-  test("Brand name PULSEWELL uses font-display (Ailerons)",
+  test("Brand logo renders as image with correct alt text",
     { tag: ["@FONT-E2E-002"] },
     async ({ page }) => {
       await page.goto("/");
-      await expect(
-        page.getByRole("link", { name: "PULSEWELL" })
-      ).toHaveClass(/font-display/);
+      const logo = page.locator('header img[alt="PulseWell"]');
+      await expect(logo).toBeVisible();
+      const src = await logo.getAttribute("src");
+      expect(src).toContain("PulseWell-Logo");
     });
 
   test("Landing body text uses font-light (Helvetica Light)",
@@ -103,11 +104,12 @@ test.describe("Fonts & Avatars", { tag: ["@high", "@e2e", "@fonts"] }, () => {
       await page.waitForLoadState("networkidle");
 
       // The UserMenu renders UserAvatar which includes an <img> for DiceBear
-      const avatarImg = page.locator("header img").first();
+      // The avatar container has title="Admin User", target img inside it
+      const avatarImg = page.locator('header [title="Admin User"] img');
       await expect(avatarImg).toBeVisible();
       const src = await avatarImg.getAttribute("src");
-      expect(src).toContain("dicebear");
-      expect(src).toContain(encodeURIComponent("Admin User"));
+      // next/image serves remote images via /_next/image?url=<encoded-url>
+      expect(decodeURIComponent(src)).toContain("dicebear");
     });
 
   test("Avatar has initials fallback present",

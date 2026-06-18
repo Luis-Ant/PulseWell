@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface UserAvatarProps {
@@ -16,10 +17,10 @@ const ROLE_COLORS: Record<string, string> = {
   EMPLOYEE: "bg-amber-500/20 text-amber-300 ring-amber-500/30",
 };
 
-const SIZE_CLASSES: Record<string, string> = {
-  sm: "size-8",
-  md: "size-10",
-  lg: "size-14",
+const SIZE_MAP: Record<string, { css: string; px: number }> = {
+  sm: { css: "size-8", px: 32 },
+  md: { css: "size-10", px: 40 },
+  lg: { css: "size-14", px: 56 },
 };
 
 function getInitials(name: string): string {
@@ -32,13 +33,14 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-function InitialsCircle({ name, role, size }: UserAvatarProps) {
+function InitialsCircle({ name, role, size = "md" }: UserAvatarProps) {
+  const s = SIZE_MAP[size];
   return (
     <div
       className={cn(
         "flex items-center justify-center rounded-full font-semibold ring-inset shrink-0",
         ROLE_COLORS[role] ?? ROLE_COLORS.EMPLOYEE,
-        SIZE_CLASSES[size],
+        s.css,
         "text-xs ring-2",
         size === "md" && "text-sm",
         size === "lg" && "text-lg",
@@ -53,21 +55,21 @@ function InitialsCircle({ name, role, size }: UserAvatarProps) {
 export function UserAvatar({ name, role, size = "md" }: UserAvatarProps) {
   const [imgFailed, setImgFailed] = useState(false);
   const seed = encodeURIComponent(name);
-  const avatarUrl = `https://api.dicebear.com/9.x/avataaars/png?seed=${seed}`;
+  const s = SIZE_MAP[size];
+  const avatarUrl = `https://api.dicebear.com/9.x/avataaars/png?seed=${seed}&size=${s.px}`;
 
   return (
-    <div
-      className={cn("relative shrink-0", SIZE_CLASSES[size])}
-      title={name}
-    >
+    <div className={cn("relative shrink-0", s.css)} title={name}>
       {/* Always-rendered initials fallback (base layer) */}
       <InitialsCircle name={name} role={role} size={size} />
 
       {/* DiceBear avatar image — overlays the initials when loaded */}
       {!imgFailed && (
-        <img
+        <Image
           src={avatarUrl}
           alt={name}
+          width={s.px}
+          height={s.px}
           onError={() => setImgFailed(true)}
           className="absolute inset-0 size-full rounded-full object-cover"
         />
