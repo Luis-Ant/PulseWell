@@ -3,16 +3,16 @@ import { Building2, Users, ClipboardList, RefreshCw, AlertTriangle, ArrowRight }
 import Link from "next/link";
 import { ActionButton } from "@/components/admin/ActionButton";
 import { TrendChart } from "@/components/dashboard/trend-chart";
-import { getLatestOwiPerTeam } from "@/lib/dashboard/queries";
+import { getOwiTrend } from "@/lib/dashboard/queries";
 
 export default async function AdminPage() {
-  const [orgCount, teamCount, userCount, surveyCount, alertCount, latestScores] = await Promise.all([
+  const [orgCount, teamCount, userCount, surveyCount, alertCount, trendData] = await Promise.all([
     prisma.organization.count(),
     prisma.team.count(),
     prisma.user.count(),
     prisma.survey.count(),
     prisma.smartAlert.count({ where: { isActive: true } }),
-    getLatestOwiPerTeam(),
+    getOwiTrend(),
   ]);
 
   const stats = [
@@ -22,16 +22,6 @@ export default async function AdminPage() {
     { icon: ClipboardList, label: "Encuestas", value: String(surveyCount) },
     { icon: AlertTriangle, label: "Alertas activas", value: String(alertCount) },
   ];
-
-  // Build OWI trend data (latest per team)
-  const periods = [...new Set(latestScores.map((s) => s.period!))].sort();
-  const trendData = periods.map((period) => {
-    const point: { period: string;[key: string]: string | number } = { period };
-    for (const s of latestScores.filter((s) => s.period === period)) {
-      point[s.teamName] = s.owi;
-    }
-    return point;
-  });
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">

@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
 
+export interface TrendDataPoint {
+  period: string;
+  [teamName: string]: string | number;
+}
+
 export interface LatestOwiPerTeam {
   teamId: string;
   teamName: string;
@@ -42,4 +47,54 @@ export async function getLatestOwiPerTeam(
   }
 
   return Array.from(latestByTeam.values());
+}
+
+/**
+ * Returns OWI trend data for the last N periods, with scores pivoted by team.
+ *
+ * Fetches the last `maxPeriods` distinct periods, then queries all wellbeing
+ * scores for those periods across the specified teams (or all teams if no
+ * filter is provided). The result is formatted for use with TrendChart.
+ *
+ * Mirrors the HR dashboard pattern at `app/(protected)/hr/page.tsx` lines
+ * ~87–236.
+ *
+ * @param teamIds — optional filter; when omitted returns scores for all teams.
+ * @param maxPeriods — number of periods to include (default 4).
+ */
+export async function getOwiTrend(
+  teamIds?: string[],
+  maxPeriods: number = 4,
+): Promise<TrendDataPoint[]> {
+  const distinctPeriods = await prisma.wellbeingScore.findMany({
+    where: teamIds ? { teamId: { in: teamIds } } : undefined,
+    select: { period: true },
+    distinct: ["period"],
+    orderBy: { period: "desc" },
+    take: maxPeriods,
+  });
+
+  const periods = distinctPeriods
+    .map((p) => p.period)
+    .filter((p): p is string => p !== null)
+    .reverse();
+
+  if (periods.length === 0) return [];
+
+  const scores = await prisma.wellbeingScore.findMany({
+    where: {
+      ...(teamIds ? { teamId: { in: teamIds } } : {}),
+      period: { in: periods },
+    },
+    include: { team: { select: { name: true } } },
+    orderBy: { period: "asc" },
+  });
+
+  return periods.map((period) => {
+    const point: TrendDataPoint = { period };
+    for (const score of scores.filter((s) => s.period === period)) {
+      point[score.team.name] = score.owi;
+    }
+    return point;
+  });
 }
