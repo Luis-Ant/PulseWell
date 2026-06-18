@@ -160,23 +160,34 @@ export async function POST(): Promise<NextResponse> {
   }
 
   // ── Generate recommendations (linked to saved alerts) ────────────
-  const recommendations = generateRecommendations(alerts);
   let recsCreated = 0;
 
-  for (let i = 0; i < recommendations.length; i++) {
-    const rec = recommendations[i];
-    const alertIdx = Math.min(i, savedAlerts.length - 1);
-    const linkedAlert = savedAlerts[alertIdx];
+  for (let alertIdx = 0; alertIdx < savedAlerts.length; alertIdx++) {
+    const savedAlert = savedAlerts[alertIdx];
+    const alertData = alerts[alertIdx];
 
-    await prisma.recommendation.create({
-      data: {
-        teamId: rec.teamId,
-        alertId: linkedAlert.id,
-        category: rec.category,
-        action: rec.action,
-      },
-    });
-    recsCreated++;
+    // Generate recommendations grouped by parent alert (not flat index)
+    const recsForAlert = generateRecommendations([alertData]);
+
+    for (const rec of recsForAlert) {
+      // Hardening assertion: linked alert's team must match recommendation's team
+      if (alertData.teamId !== rec.teamId) {
+        throw new Error(
+          `Team ID mismatch: alert ${savedAlert.id} (team ${alertData.teamId}) ` +
+            `rec team ${rec.teamId}`,
+        );
+      }
+
+      await prisma.recommendation.create({
+        data: {
+          teamId: rec.teamId,
+          alertId: savedAlert.id,
+          category: rec.category,
+          action: rec.action,
+        },
+      });
+      recsCreated++;
+    }
   }
 
   return NextResponse.json({

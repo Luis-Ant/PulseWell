@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { UserRole, RiskLevel, AlertType, AlertSeverity } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { generateAlerts, generateRecommendations } from "../lib/alerts";
-import type { TeamAlertInput } from "../lib/alerts";
+import type { TeamAlertInput, AlertInsertData } from "../lib/alerts";
 import { calculateProjection } from "../lib/analytics";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -561,35 +561,48 @@ export async function runSeed(): Promise<SeedResult> {
   console.log(`  ✅ ${generatedAlertCount} alerts generated`);
 
   // ── Recommendations (linked to saved alerts) ────────────────────────────────
-  const recommendations = generateRecommendations(alerts);
   let generatedRecCount = 0;
 
-  for (let i = 0; i < recommendations.length; i++) {
-    const rec = recommendations[i];
-    // Link to the corresponding alert (same index maps to same alert since
-    // recommendations are generated in the same order as alerts)
-    const alertIdx = Math.min(i, savedAlerts.length - 1);
-    const linkedAlert = savedAlerts[alertIdx];
+  for (const savedAlert of savedAlerts) {
+    // Generate recommendations for this specific alert (not a flat global list)
+    const alertInput: AlertInsertData = {
+      teamId: savedAlert.teamId,
+      type: savedAlert.type,
+      severity: "",
+      message: "",
+      driver: "",
+    };
+    const recsForAlert = generateRecommendations([alertInput]);
 
-    const id = `rec-${linkedAlert.teamId}-${Date.now()}-${i}`;
-    await prisma.recommendation.upsert({
-      where: { id },
-      update: {
-        teamId: rec.teamId,
-        alertId: linkedAlert.id,
-        category: rec.category,
-        action: rec.action,
-      },
-      create: {
-        id,
-        teamId: rec.teamId,
-        alertId: linkedAlert.id,
-        category: rec.category,
-        action: rec.action,
-      },
-    });
-    generatedRecCount++;
-    console.log(`  ✅ Recommendation: ${rec.action.slice(0, 50)}...`);
+    for (const rec of recsForAlert) {
+      // Hardening assertion: linked alert's team must match recommendation's team
+      if (savedAlert.teamId !== rec.teamId) {
+        throw new Error(
+          `Team ID mismatch: alert ${savedAlert.id} (team ${savedAlert.teamId}) ` +
+            `rec team ${rec.teamId}`,
+        );
+      }
+
+      const id = `rec-${savedAlert.teamId}-${Date.now()}-${generatedRecCount}`;
+      await prisma.recommendation.upsert({
+        where: { id },
+        update: {
+          teamId: rec.teamId,
+          alertId: savedAlert.id,
+          category: rec.category,
+          action: rec.action,
+        },
+        create: {
+          id,
+          teamId: rec.teamId,
+          alertId: savedAlert.id,
+          category: rec.category,
+          action: rec.action,
+        },
+      });
+      generatedRecCount++;
+      console.log(`  ✅ Recommendation: ${rec.action.slice(0, 50)}...`);
+    }
   }
   console.log(`  ✅ ${generatedRecCount} recommendations generated`);
 

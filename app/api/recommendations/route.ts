@@ -28,6 +28,20 @@ export async function GET(): Promise<NextResponse> {
 
   requireRole(user, [USER_ROLE.ADMIN, USER_ROLE.HR_ANALYST, USER_ROLE.MANAGER]);
 
+  // Guard: MANAGERs must belong to a team — don't silently omit the team filter
+  if (user.role === USER_ROLE.MANAGER && !user.teamId) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: "FORBIDDEN",
+          message: "Manager must be assigned to a team to view recommendations.",
+        },
+      },
+      { status: 403 },
+    );
+  }
+
   const managerTeamId = user.role === USER_ROLE.MANAGER ? user.teamId : null;
 
   // ── Query recommendations ────────────────────────────────────────
