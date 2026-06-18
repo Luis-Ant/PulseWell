@@ -70,6 +70,10 @@ const helveticaRoundedBold = localFont({
 export const metadata: Metadata = {
   title: "PulseWell",
   description: "Organizational wellbeing intelligence platform.",
+  icons: {
+    icon: "/favicon.webp",
+    apple: "/favicon.webp",
+  },
 };
 
 interface RootLayoutProps {

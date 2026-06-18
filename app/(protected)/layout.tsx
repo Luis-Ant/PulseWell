@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth/server";
 import { prisma } from "@/lib/prisma";
@@ -50,14 +49,9 @@ export default async function ProtectedLayout({
       <header className="border-b border-slate-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-3">
-            <Image
-              src="/PulseWell-Logo.webp"
-              alt="PulseWell"
-              width={1380}
-              height={752}
-              className="h-6 w-auto"
-              priority
-            />
+            <span className="font-display text-lg uppercase tracking-[0.15em] text-white">
+              PULSEWELL
+            </span>
             <span className="font-ui hidden rounded-full border border-slate-700 px-2.5 py-0.5 text-xs tracking-[0.12em] uppercase text-slate-500 sm:inline">
               {roleLabel(user.role)}
             </span>

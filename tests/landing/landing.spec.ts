@@ -70,14 +70,13 @@ test.describe("Fonts & Avatars", { tag: ["@high", "@e2e", "@fonts"] }, () => {
       expect(text).toMatch(/\d+/);
     });
 
-  test("Brand logo renders as image with correct alt text",
+  test("Brand name PULSEWELL uses font-display (Ailerons) with bold styling",
     { tag: ["@FONT-E2E-002"] },
     async ({ page }) => {
       await page.goto("/");
-      const logo = page.locator('header img[alt="PulseWell"]');
-      await expect(logo).toBeVisible();
-      const src = await logo.getAttribute("src");
-      expect(src).toContain("PulseWell-Logo");
+      await expect(
+        page.getByRole("link", { name: "PULSEWELL" })
+      ).toHaveClass(/font-display/);
     });
 
   test("Landing body text uses font-light (Helvetica Light)",

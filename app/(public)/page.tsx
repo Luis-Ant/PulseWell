@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Activity, Brain, ShieldCheck, TrendingUp, ClipboardList, Banknote } from "lucide-react";
 import { MetricCard } from "@/components/dashboard/metric-card";
 import { SectionCard } from "@/components/dashboard/section-card";
@@ -30,15 +29,11 @@ export default async function HomePage() {
       {/* ─── Header ──────────────────────────────────────── */}
       <header className="border-b border-slate-800">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/" className="flex items-center">
-            <Image
-              src="/PulseWell-Logo.webp"
-              alt="PulseWell"
-              width={1380}
-              height={752}
-              className="h-7 w-auto"
-              priority
-            />
+          <Link
+            href="/"
+            className="font-display text-xl uppercase tracking-[0.15em] text-white"
+          >
+            PULSEWELL
           </Link>
 
           {user ? (
