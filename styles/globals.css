@@ -38,6 +38,7 @@
     min-height: 100vh;
     background: var(--color-slate-950);
     color: var(--color-slate-50);
+    font-synthesis: none;
     /* localFont variables now live on <html> (= :root), so @theme font
        variables resolve correctly everywhere. */
     font-family: var(--font-sans);
